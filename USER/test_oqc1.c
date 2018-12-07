@@ -34,11 +34,15 @@
 			LEDA_DIM();
 			FPGA_DisPattern(0, 255, 255, 255);	//low current white
 		  Delay_ms(1500); 
+			SPEC_LEDA_MIN = SPEC_MIN_LEDA_DIM;
+      SPEC_LEDA_MAX = SPEC_MAX_LEDA_DIM;
 			break;
 		case (4): 
 			LCD_PWM(0x0FFF);
 			FPGA_DisPattern(94, 255, 0, 0);
-			Delay_ms(1500); 
+			Delay_ms(1500);
+			SPEC_LEDA_MIN = SPEC_MIN_LEDA_NORMAL;
+      SPEC_LEDA_MAX = SPEC_MAX_LEDA_NORMAL;		
 			break;
 		case (5): 
 			FPGA_DisPattern(0, 255, 255, 255);	//white
