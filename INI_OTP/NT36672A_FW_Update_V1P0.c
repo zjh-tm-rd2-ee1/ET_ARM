@@ -1029,7 +1029,7 @@ ErrorStatus Program_FW(void)//Download_Firmware_HW_CRC(void)//Download_Firmware_
 ErrorStatus ret =SUCCESS;
 #ifdef NO_FLASH_MODE
 uint8_t retry = 0;
-//uint8_t buf[1];
+uint8_t buf[1];
 	
 TCH_SPI_Config();//spi_config
 if(SD_FW_OPEN()==ERROR)// open fw file
@@ -1056,7 +1056,7 @@ if (!ret)
   }
   
   /* clear fw reset status */
-//	buf[0]=0xAA;
+	buf[0]=0xAA;
 //	while(1){
   TCH_SPI_WordWrite(EVENT_MAP_RESET_COMPLETE,1, 0x00);
 //	TCH_SPI_WordRead(EVENT_MAP_RESET_COMPLETE,1, buf);
