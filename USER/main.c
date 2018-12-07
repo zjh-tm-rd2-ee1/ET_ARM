@@ -12,7 +12,17 @@
 //	TEST_MODE_DEMO
 //	TEST_MODE_CTP
 //	TEST_MODE_DEBUG
-uint8_t TEST_MODE = TEST_MODE_DEBUG;
+uint8_t TEST_MODE = TEST_MODE_RA;
+
+//FRESULT frs;
+//TCHAR *path = (TCHAR*)"0:\\";	
+//DIR my_dir;
+//FATFS txtfs;
+//FIL txtfsrc; 
+//static FILINFO MyInfo;
+//char Content[1024]={0};
+//WORD fileType;
+//UINT* br;
 
 /*********************************************************************************
 * Function: main
@@ -32,8 +42,7 @@ int main(void)
 
 	/* Initial */		
 	FPGA_Initial();
-		
-	if (!auto_line)
+	if (TRUE)//(!auto_line)
 	{
 		LCM_Init();
 		
@@ -45,9 +54,8 @@ int main(void)
 			CTP_Start();
 			Differ2_Detect();	
 		}
-		
 		/* picture loading for DPT AOI*/
-		if (PIC_Load_BMP_DPT((uint8_t *)"DPT.bmp") == SUCCESS)
+		if (PIC_Load_BMP_ET((uint8_t *)"DPT.bmp") == SUCCESS)
 		{
 			DIS_NUM_OLD = DIS_NUM; //DPT AOI not to enter test mode switch
 		}			
@@ -63,8 +71,7 @@ int main(void)
 			}			
 		}			
 		Pic_Load_Finish = RESET; //remain the flag for TM ET picture loading		
-		
-		if (current_NG == RESET && SDCard_NG == RESET && TE_NG == RESET && PWM_NG == RESET &&  ID_NG == RESET && FW_NG == RESET && FPGA_NG == RESET && OSC_TRIM_NG == RESET)
+		if (current_NG == RESET && SDCard_NG == RESET && TE_NG == RESET && PWM_NG == RESET &&  ID_NG == RESET && FW_NG == RESET && FPGA_NG == RESET)
 		{	
 			/* picture loading for TM manual line */ 
 			if (PIC_NUM != 0)
@@ -74,7 +81,6 @@ int main(void)
 				PIC_Load_BMP(PIC_NUM);
 				printf("\r\n===== Load %d picture time elapsed: %.3f(second)\r\n", PIC_NUM, TIMESTAMP - debug);
 			}
-
 			/* version setting */
 			Version_Set();	
 		}
@@ -90,8 +96,7 @@ int main(void)
 			else if (TE_NG == SET) FPGA_Info_Set((uint8_t *)"TE NG");	
 			else if (PWM_NG == SET) FPGA_Info_Set((uint8_t *)"PWM NG");	
 			else if (ID_NG == SET)	FPGA_DisPattern(86, 0, 0, 0);
-			else if (FPGA_NG == SET) FPGA_Info_Set((uint8_t *)"FPGA ERROR");
-			else if (OSC_TRIM_NG == SET) FPGA_Info_Set((uint8_t *)"OSC TRIM OFF");				
+			else if (FPGA_NG == SET) FPGA_Info_Set((uint8_t *)"FPGA ERROR");				
 		}
 	} //end of 	if (!auto_line)
 	else
@@ -117,19 +122,22 @@ int main(void)
 	printf("\r\nMain loop...\r\n");
 	printf("\r\n===== System on time elapsed: %.3f(second)\r\n", TIMESTAMP);	
   printf("\r\n*#*#SYSTEM OK#*#*\r\n");
-//	
-//	while (KEY_GetState() != KEY_UP);
-//	Delay_ms(1000);		
-
 	while (1)
 	{	
 		Test_Mode_Switch();
 		Connect_Check();
 		USART_EventProcess();
+//		if(USART_CMD_FLAG == SET){
+//			Delay_us(1000);
+//			USART_CMD_FLAG = RESET;
+//			strcat(SendData,"\n");
+//			printf("\r\n%s\r\n",SendData);
+//			frs = f_mount(&txtfs, path, 0);
+//			frs = f_opendir(&my_dir,path);
+//			frs = f_open(&txtfsrc, "test.data", FA_CREATE_ALWAYS | FA_WRITE);
+//			frs = f_write(&txtfsrc,SendData,20,br);
+//			frs = f_close(&txtfsrc);
+//		}
 		task_list();
-		
-//		(DIS_NUM >= (TOTAL_DIS_NUM - 1)) ? (DIS_NUM = 0) : DIS_NUM++;
-//		printf("TOTAL_DIS_NUM = %d, DIS_NUM = %d\r\n", TOTAL_DIS_NUM, DIS_NUM); 
-//		Delay_ms(1000);		
 	} 
 }
