@@ -23,11 +23,15 @@ void ETA_Visual_Check()
 			LEDA_DIM();
 			FPGA_DisPattern(0, 255, 255, 255); //black
 			Delay_ms(1000);
+			SPEC_LEDA_MIN = SPEC_MIN_LEDA_DIM;
+			SPEC_LEDA_MAX = SPEC_MAX_LEDA_DIM;
 			break;
 		case (3): 
 			LCD_PWM(0x0FFF);
 			FPGA_DisPattern(24, 127, 127, 127);	//dotcheck
 			Delay_ms(300);
+			SPEC_LEDA_MIN = SPEC_MIN_LEDA_NORMAL;
+			SPEC_LEDA_MAX = SPEC_MAX_LEDA_NORMAL;	
 			break;
 		case (4): 
 			FPGA_DisPattern(17, 0, 0, 0); 	//bar
