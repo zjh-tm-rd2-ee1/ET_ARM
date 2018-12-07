@@ -1,6 +1,55 @@
 #include "include.h"
 
 
+void ETA_Visual_Check()
+{
+		TOTAL_DIS_NUM = 7;	
+ 	switch (DIS_NUM) 
+	{
+		case (0): 
+			FPGA_Info_Visible(INFO_VERSION|INFO_PROJECT_NO);
+			FPGA_DisPattern(81, 0, 0x77, 0x41);	
+			Delay_ms(300);
+			break;
+		case (1): 
+			FPGA_Info_Visible(INFO_RGBVAL);
+			ScanBackward();
+			FPGA_DisPattern(0,127,127,127);
+			Delay_ms(2000);
+			break;	
+		case (2): 
+			FPGA_Info_Visible(INFO_NONE);
+			ScanForward();
+			LEDA_DIM();
+			FPGA_DisPattern(0, 255, 255, 255); //black
+			Delay_ms(1000);
+			break;
+		case (3): 
+			LCD_PWM(0x0FFF);
+			FPGA_DisPattern(24, 127, 127, 127);	//dotcheck
+			Delay_ms(300);
+			break;
+		case (4): 
+			FPGA_DisPattern(17, 0, 0, 0); 	//bar
+			Delay_ms(300);
+			break;
+		case (5): 
+			FPGA_DisPattern(138, 0, 0, 0);	//WRGB transtion
+			Delay_ms(300);
+			break;
+		case (6): 
+			FPGA_DisPattern(0, 0, 0, 0);
+			KEY_SLEEPIN();
+			Delay_ms(300);		
+			break;
+			break;
+		default: 
+			FPGA_DisPattern(0, 0, 0, 0); 
+			break;
+	}
+
+}
+
 void OD_Visual_Check()
 {
 		TOTAL_DIS_NUM = 33;	
@@ -28,13 +77,13 @@ void OD_Visual_Check()
 			FPGA_DisPattern(0, 0, 0, 255); //B
 			break;
 		case (6): 
-			FPGA_DisPattern(24, 128, 128, 128); //flicker
+			FPGA_DisPattern(22,127,0,0);
 			break;
 		case (7): 
-			FPGA_DisPattern(1, 127, 0, 0); //crosstalk 1/3 ºÚ¿ò
+			FPGA_DisPattern(1, 127, 0, 0); //crosstalk 1/3 ??
 			break;
 		case (8): 
-			FPGA_DisPattern(7, 127, 0, 0); //crosstalk 1/3 °×¿ò
+			FPGA_DisPattern(7, 127, 0, 0); //crosstalk 1/3 ??
 			break;
 		case (9): 
 			FPGA_DisPattern(0, 127, 127, 127);//gray127
@@ -49,25 +98,25 @@ void OD_Visual_Check()
 			FPGA_DisPattern(17, 0, 0, 0); //Gray bar-V
 			break;
 		case (13): 
-			FPGA_DisPattern(128, 255, 0, 0); //²Ê¿òCrosstalk£¨red /G127)
+			FPGA_DisPattern(128, 255, 0, 0); //??Crosstalk(red /G127)
 			break;
 		case (14): 
-			FPGA_DisPattern(128, 0, 255, 0); //²Ê¿òCrosstalk£¨Green /G127)
+			FPGA_DisPattern(128, 0, 255, 0); //??Crosstalk(Green /G127)
 			break;
 		case (15): 
-			FPGA_DisPattern(128, 0, 0, 255); //²Ê¿òCrosstalk£¨blue /G127)
+			FPGA_DisPattern(128, 0, 0, 255); //??Crosstalk(blue /G127)
 			break;
 		case (16): 
-			FPGA_DisPattern(128, 0, 255, 255); //²Ê¿òCrosstalk£¨Çà/G127)
+			FPGA_DisPattern(128, 0, 255, 255); //??Crosstalk(?/G127)
 			break;
 		case (17): 
-			FPGA_DisPattern(128, 255, 255, 0); //²Ê¿òCrosstalk£¨yellow /G127)
+			FPGA_DisPattern(128, 255, 255, 0); //??Crosstalk(yellow /G127)
 			break;
 		case (18): 
-			FPGA_DisPattern(128, 255, 0, 255); //²Ê¿òCrosstalk£¨purple /G127)
+			FPGA_DisPattern(128, 255, 0, 255); //??Crosstalk(purple /G127)
 			break;
 		case (19): 
-			FPGA_DisPattern(133, 255, 0, 0);//²Ê¿òCrosstalk£¨red +yellow)
+			FPGA_DisPattern(133, 255, 0, 0);//??Crosstalk(red +yellow)
 			break;
  		case (20):
 			FPGA_Info_Visible(INFO_NONE);			
@@ -136,5 +185,6 @@ void OD_Visual_Check()
 */
 void Test_OD(void)
 {
+//	ETA_Visual_Check();
 	OD_Visual_Check();
 }
