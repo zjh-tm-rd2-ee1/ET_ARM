@@ -37,13 +37,17 @@ void Test_ET2(void){
 			LEDA_DIM(); 							
 		  FPGA_DisPattern(0, 255, 255, 255);	//DIM (low current white)
 			printf("\r\n%d\r\n",DIS_NUM);
-			Delay_ms(300);		  
+			Delay_ms(300);
+			SPEC_LEDA_MIN = SPEC_MIN_LEDA_DIM;
+			SPEC_LEDA_MAX = SPEC_MAX_LEDA_DIM;
 			break;
 		case (4):
 			LCD_PWM(0x0FFF);
 			FPGA_DisPattern(94, 255, 0, 0); 	//???
 			printf("\r\n%d\r\n",DIS_NUM);
 		  Delay_ms(300);
+			SPEC_LEDA_MIN = SPEC_MIN_LEDA_NORMAL;
+			SPEC_LEDA_MAX = SPEC_MAX_LEDA_NORMAL;	
 			break;
 		case (5): 
 			FPGA_DisPattern(0, 255, 255, 255);	//white
