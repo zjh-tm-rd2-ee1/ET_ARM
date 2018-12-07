@@ -1,7 +1,7 @@
 #include "include.h"
 
 /* TEST_MODE can be a value of the list below */
-//	TEST_MODE_ET1
+//	TEST_MODE_ET1=ET-A
 //	TEST_MODE_ET2	  
 //	TEST_MODE_ET3
 //	TEST_MODE_OTP
@@ -12,8 +12,7 @@
 //	TEST_MODE_DEMO
 //	TEST_MODE_CTP
 //	TEST_MODE_DEBUG
-uint8_t TEST_MODE = TEST_MODE_DEBUG;
-
+uint8_t TEST_MODE = TEST_MODE_ET1;
 /*********************************************************************************
 * Function: main
 * Description: main
@@ -26,28 +25,31 @@ int main(void)
 {
 	/* STM32 initial */
 	Board_Init(); 
-	TEST_MODE_Init();
+	TEST_MODE_Init();//ÒòÎªSDCARDÄ£Ê½Ã»ÓÐºê¶¨Òå£¬ËùÒÔÕâÀïÃæµÄ³ÌÐò¶¼Ã»ÓÐ±àÒë³öÀ´
 	Delay_ms(200);	// wait for FPGA ready!
 	LED_ON(BLUE);
 
 	/* Initial */		
 	FPGA_Initial();
-		
-	if (!auto_line)
+	if (!auto_line)//ÊÖ¶¯ÏßÖ´ÐÐÒÔÏÂ³ÌÐò
 	{
-		LCM_Init();
+		
+		//for(int i=0;i<80;i++){
+			LCM_Init();
+			//FPGA_DisPattern(0,255,255,255);
+			//Delay_ms(2000);
+		//}
 		
 		/* CTP Sensor detect */
-		if (TEST_MODE == TEST_MODE_CTP)
+		if (TEST_MODE == TEST_MODE_CTP)//CTPÕ¾µã
 		{	
 			FPGA_Info_Visible(INFO_VERSION | INFO_PROJECT_NO);
 			FPGA_DisPattern(83, 127, 127, 127);	//waku+black crosstalk
 			CTP_Start();
 			Differ2_Detect();	
 		}
-		
 		/* picture loading for DPT AOI*/
-		if (PIC_Load_BMP_DPT((uint8_t *)"DPT.bmp") == SUCCESS)
+		if (PIC_Load_BMP_ET((uint8_t *)"DPT.bmp") == SUCCESS)
 		{
 			DIS_NUM_OLD = DIS_NUM; //DPT AOI not to enter test mode switch
 		}			
@@ -63,18 +65,16 @@ int main(void)
 			}			
 		}			
 		Pic_Load_Finish = RESET; //remain the flag for TM ET picture loading		
-		
-		if (current_NG == RESET && SDCard_NG == RESET && TE_NG == RESET && PWM_NG == RESET &&  ID_NG == RESET && FW_NG == RESET && FPGA_NG == RESET && OSC_TRIM_NG == RESET)
+		if (current_NG == RESET && SDCard_NG == RESET && TE_NG == RESET && PWM_NG == RESET &&  ID_NG == RESET && FW_NG == RESET && FPGA_NG == RESET)
 		{	
 			/* picture loading for TM manual line */ 
-			if (PIC_NUM != 0)
-			{
-				debug = TIMESTAMP;	
-				printf("\r\nPicture loading...\r\n");			
-				PIC_Load_BMP(PIC_NUM);
-				printf("\r\n===== Load %d picture time elapsed: %.3f(second)\r\n", PIC_NUM, TIMESTAMP - debug);
-			}
-
+//			if (PIC_NUM != 0)
+//			{
+//				debug = TIMESTAMP;	
+//				printf("\r\nPicture loading...\r\n");
+//				PIC_Load_BMP(PIC_NUM);
+//				printf("\r\n===== Load %d picture time elapsed: %.3f(second)\r\n", PIC_NUM, TIMESTAMP - debug);
+//			}
 			/* version setting */
 			Version_Set();	
 		}
@@ -90,11 +90,10 @@ int main(void)
 			else if (TE_NG == SET) FPGA_Info_Set((uint8_t *)"TE NG");	
 			else if (PWM_NG == SET) FPGA_Info_Set((uint8_t *)"PWM NG");	
 			else if (ID_NG == SET)	FPGA_DisPattern(86, 0, 0, 0);
-			else if (FPGA_NG == SET) FPGA_Info_Set((uint8_t *)"FPGA ERROR");
-			else if (OSC_TRIM_NG == SET) FPGA_Info_Set((uint8_t *)"OSC TRIM OFF");				
+			else if (FPGA_NG == SET) FPGA_Info_Set((uint8_t *)"FPGA ERROR");				
 		}
 	} //end of 	if (!auto_line)
-	else
+	else//×Ô¶¯Ïß
 	{
 		PIC_Load_BMP(1); 
 		DIS_NUM_OLD = DIS_NUM; //Auto AOI not to enter test mode switch
@@ -117,19 +116,12 @@ int main(void)
 	printf("\r\nMain loop...\r\n");
 	printf("\r\n===== System on time elapsed: %.3f(second)\r\n", TIMESTAMP);	
   printf("\r\n*#*#SYSTEM OK#*#*\r\n");
-//	
-//	while (KEY_GetState() != KEY_UP);
-//	Delay_ms(1000);		
-
-	while (1)
+	
+	while (1)//Ö÷ÒªÑ­»·Ö´ÐÐ³ÌÐò
 	{	
 		Test_Mode_Switch();
 		Connect_Check();
 		USART_EventProcess();
 		task_list();
-		
-//		(DIS_NUM >= (TOTAL_DIS_NUM - 1)) ? (DIS_NUM = 0) : DIS_NUM++;
-//		printf("TOTAL_DIS_NUM = %d, DIS_NUM = %d\r\n", TOTAL_DIS_NUM, DIS_NUM); 
-//		Delay_ms(1000);		
 	} 
 }
