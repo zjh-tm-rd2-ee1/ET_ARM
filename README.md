@@ -1,6 +1,6 @@
 ET_ARM
 =
-ARM PROGRAM FOR ET
+ARM PROGRAM FOR LCM (LCD Module) ET (Electronic Test)
 
 【FWlib】
 =
