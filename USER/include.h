@@ -4,7 +4,7 @@
 /*********************************************************************************
  * optional test functions
  */
-#define	NO_FLASH_MODE 
+//#define	NO_FLASH_MODE 
 //#define	SDCARD_MODE
 //#define CMD_MODE
 #define SINGLE_PORT						  //single port enable, if project use dual port, please comment the define
