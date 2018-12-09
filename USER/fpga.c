@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "string.h"
 
-#define ARMVERSION "V2P5"
+#define ARMVERSION "V2P3"
 
 uint16_t hsum;
 uint16_t vsum;
@@ -304,6 +304,25 @@ void FPGA_Porch_Set(FPGAPORCH_TypeDef FPGA_porchPara)
 */
 void FPGA_Display_Set(void)
 {
+	FPGA_SPI3Write(ADDR_PAT_R1);
+	FPGA_SPI3Write(DOT_R1);
+	FPGA_SPI3Write(ADDR_PAT_G1);
+	FPGA_SPI3Write(DOT_G1);
+	FPGA_SPI3Write(ADDR_PAT_B1);
+	FPGA_SPI3Write(DOT_B1);	
+	FPGA_SPI3Write(ADDR_PAT_R2);
+	FPGA_SPI3Write(DOT_R2);
+	FPGA_SPI3Write(ADDR_PAT_G2);
+	FPGA_SPI3Write(DOT_G2);
+	FPGA_SPI3Write(ADDR_PAT_B2);
+	FPGA_SPI3Write(DOT_B2);
+	FPGA_SPI3Write(ADDR_PAT_R3);
+	FPGA_SPI3Write(DOT_R3);     
+	FPGA_SPI3Write(ADDR_PAT_G3);
+	FPGA_SPI3Write(DOT_G3);     
+	FPGA_SPI3Write(ADDR_PAT_B3);
+	FPGA_SPI3Write(DOT_B3);		 	
+	
 	FPGA_SPI3Write(ADDR_PIC_MASK);
 	FPGA_SPI3Write(0);
 	
@@ -323,17 +342,6 @@ void FPGA_Display_Set(void)
 	FPGA_SPI3Write((INFO_Y_AXIS & 0x0F00) >> 8);		
 	FPGA_SPI3Write(ADDR_INFO_Y_2);
 	FPGA_SPI3Write(INFO_Y_AXIS & 0x00FF);
-	
-	FPGA_SPI3Write(ADDR_PAT_RECT_XY);
-	FPGA_SPI3Write(((RECT_START_X & 0x0F00) >> 4) + ((RECT_START_Y & 0x0F00) >> 8));
-	FPGA_SPI3Write(ADDR_PAT_RECT_X);
-	FPGA_SPI3Write(RECT_START_X & 0x00FF);
-	FPGA_SPI3Write(ADDR_PAT_RECT_Y);
-	FPGA_SPI3Write(RECT_START_Y & 0x00FF);
-	FPGA_SPI3Write(ADDR_PAT_RECT_S_X);
-	FPGA_SPI3Write(RECT_SIZE_X);
-	FPGA_SPI3Write(ADDR_PAT_RECT_S_Y);
-	FPGA_SPI3Write(RECT_SIZE_Y);
 }
 
 /*********************************************************************************
@@ -519,14 +527,14 @@ void Project_Info_Upload(void)
 #ifndef SDCARD_MODE
 	printf("\r\n*#*#1:%s_%s_ARM%s_%s#*#*\r\n", PROJECT_NO, temp1, ARMVERSION, temp2);
 #else
-//	if (!auto_line) 
+	if (!auto_line) 
 	{
 		printf("\r\n*#*#1:%s_ET_ARM%s_%s_%s#*#*\r\n", PROJECT_NO, ARMVERSION, VERSION_SDmode, VERSION_DISPLAY);
 	}
-//	else
-//	{
-//		printf("\r\n*#*#1:%s_%s_ARM%s_%s#*#*\r\n", PROJECT_NO, temp1, ARMVERSION, temp2);
-//	}
+	else
+	{
+		printf("\r\n*#*#1:%s_%s_ARM%s_%s#*#*\r\n", PROJECT_NO, temp1, ARMVERSION, temp2);
+	}
 #endif
 }
 
@@ -592,30 +600,61 @@ void FPGA_DisPattern(uint8_t ptnNum, uint8_t rdata, uint8_t gdata, uint8_t bdata
 {
 	char gray[4];
 	
-	if (ptnNum == 22)
-	{
-		SPEC_MAX_IOVCC =	SPEC_MAX_FLICKER_IOVCC;
-		SPEC_MAX_VSP =	SPEC_MAX_FLICKER_VSP;
-		SPEC_MAX_VSN	=	SPEC_MAX_FLICKER_VSN;	
-	}
-	else if (ptnNum == 23)
-	{
-		SPEC_MAX_IOVCC =	SPEC_MAX_CHECK_PIXEL_IOVCC;
-		SPEC_MAX_VSP =	SPEC_MAX_CHECK_PIXEL_VSP;
-		SPEC_MAX_VSN	= SPEC_MAX_CHECK_PIXEL_VSN;	
-	}
-	else if (ptnNum == 24)
-	{
-		SPEC_MAX_IOVCC =	SPEC_MAX_CHECK_DOT_IOVCC;
-		SPEC_MAX_VSP =	SPEC_MAX_CHECK_DOT_VSP;
-		SPEC_MAX_VSN	=	SPEC_MAX_CHECK_DOT_VSN;	
-	}
-	else
+	if ((ptnNum == 0)&&(rdata == 255)&&(gdata == 255)&&(bdata == 255) ) //wwp 20180606
 	{
 		SPEC_MAX_IOVCC =	SPEC_MAX_RED_IOVCC;
-		SPEC_MAX_VSP =	SPEC_MAX_RED_VSP;
-		SPEC_MAX_VSN	=	SPEC_MAX_RED_VSN;
+		SPEC_MAX_VSP   =	SPEC_MAX_RED_VSP;
+		SPEC_MAX_VSN	 =	SPEC_MAX_RED_VSN;
 	}
+//	else if ((ptnNum == 0)&&(rdata == 255)&&(gdata == 0)&&(bdata == 0) ) //wwp 20180606
+//	{
+//		SPEC_MAX_IOVCC =	SPEC_MAX_RED_IOVCC;
+//		SPEC_MAX_VSP   =	SPEC_MAX_RED_VSP;
+//		SPEC_MAX_VSN	 =	SPEC_MAX_RED_VSN;
+//	}
+	else//wwp 20180606
+	{
+		SPEC_MAX_IOVCC =	SPEC_MAX_CHECK_DOT_IOVCC;
+		SPEC_MAX_VSP   =	SPEC_MAX_CHECK_DOT_VSP;
+		SPEC_MAX_VSN	 =	SPEC_MAX_CHECK_DOT_VSN;	
+	}
+	
+//	if (ptnNum == 22)
+//	{
+//		SPEC_MAX_IOVCC =	SPEC_MAX_FLICKER_IOVCC;
+//		SPEC_MAX_VSP =	SPEC_MAX_FLICKER_VSP;
+//		SPEC_MAX_VSN	=	SPEC_MAX_FLICKER_VSN;	
+//	}
+//	else if (ptnNum == 23)
+//	{
+//		SPEC_MAX_IOVCC =	SPEC_MAX_CHECK_PIXEL_IOVCC;
+//		SPEC_MAX_VSP =	SPEC_MAX_CHECK_PIXEL_VSP;
+//		SPEC_MAX_VSN	= SPEC_MAX_CHECK_PIXEL_VSN;	
+//	}
+//	else if (ptnNum == 24)
+//	{
+//		SPEC_MAX_IOVCC =	SPEC_MAX_CHECK_DOT_IOVCC;
+//		SPEC_MAX_VSP =	SPEC_MAX_CHECK_DOT_VSP;
+//		SPEC_MAX_VSN	=	SPEC_MAX_CHECK_DOT_VSN;	
+//	}
+//	else if (ptnNum == 17) //wwp 20180502
+//	{
+//		SPEC_MAX_IOVCC =	SPEC_MAX_CHECK_DOT_IOVCC;
+//		SPEC_MAX_VSP =	SPEC_MAX_CHECK_DOT_VSP;
+//		SPEC_MAX_VSN	=	SPEC_MAX_CHECK_DOT_VSN;	
+//	}
+//	else if ((ptnNum == 0)&&(rdata == 255)&&(gdata == 255)&&(bdata == 255) ) //wwp 20180606
+//	{
+//		SPEC_MAX_IOVCC =	SPEC_MAX_RED_IOVCC;
+//		SPEC_MAX_VSP =	SPEC_MAX_RED_VSP;
+//		SPEC_MAX_VSN	=	SPEC_MAX_RED_VSN;
+//	}
+//	else//wwp 20180606
+//	{
+//		SPEC_MAX_IOVCC =	SPEC_MAX_CHECK_DOT_IOVCC;
+//		SPEC_MAX_VSP =	SPEC_MAX_CHECK_DOT_VSP;
+//		SPEC_MAX_VSN	=	SPEC_MAX_CHECK_DOT_VSN;	
+//	}
 	
 	if (ptnNum == 128) 
 	{
@@ -637,10 +676,10 @@ void FPGA_DisPattern(uint8_t ptnNum, uint8_t rdata, uint8_t gdata, uint8_t bdata
 	}
 	if (ptnNum == 82) //bright dot
 	{
-		FPGA_Info_Visible(INFO_STR);
+//		FPGA_Info_Visible(INFO_STR);
 		if (rdata == 0) //CH1
 		{
-			FPGA_Info_Set((uint8_t *)"CH1");
+//			FPGA_Info_Set((uint8_t *)"CH1");
 			FPGA_SPI3Write(ADDR_PAT_R1);
 			FPGA_SPI3Write(100);
 			FPGA_SPI3Write(ADDR_PAT_G1);
@@ -828,10 +867,8 @@ void FPGA_DisPicture(uint8_t picNum)
 */
  void FPGA_PIC_WR_CFG(uint8_t wr_en, uint8_t wr_num, uint16_t bst_num, uint8_t size_rsv, uint16_t sdramlastBurstUse)
  {
-#ifndef SDCARD_MODE
 	 FPGA_SPI3Write(ADDR_PIC_WR_NUM);
 	 FPGA_SPI3Write(wr_num);
-#endif
 
 	 FPGA_SPI3Write(ADDR_PIC_BST_NUM_1);
 	 FPGA_SPI3Write((bst_num & 0xFF00) >> 8);
@@ -892,10 +929,8 @@ void FPGA_DisPicture(uint8_t picNum)
 */
  void FPGA_Initial()
  {
-#ifndef SDCARD_MODE
 		char buf[] = PROJECT_NO;
 		char *tmp;
-#endif
 
 		/* FPGA initial */
 		printf("\r\nFPGA_Reset...\r\n");

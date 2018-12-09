@@ -8,20 +8,19 @@
 //#define	SDCARD_MODE
 //#define CMD_MODE
 #define SINGLE_PORT						  //single port enable, if project use dual port, please comment the define
-//#define DIFFER2_DETECT				//only for FT8716, FOCAL CTP test
+//#define DIFFER2_DETECT				//FOCAL CTP test, if you don't need it, please comment the define
 //#define PWM_DETECT						
 //#define TE_DETECT
 //#define CHROMA								// HTC SONY 10.1 chroma control, if you don't need it, please comment the define
 //#define	HOT_PLUG							//FPC connection check, if you don't need it, please comment the define
 //#define	CURRENT_CHECK					//current check, if you don't need it, please comment the define
 //#define	CURRENT_METER					//current measure, if you don't need it, please comment the define
-//#define	AG_TEST							  //FPC connection check, if you don't need it, please comment the define
 
 /*********************************************************************************
  * adjustable parameters
  */																	    //OTP_FLAG_xxx: test item select: b7 = flicker, b6 = contrast, b5 = chroma, b4 = gamma, others = reserved
-#define OTP_FLAG_AUTO						0x80		//config for auto line otp instead of OTP_FLAG
-#define OTP_FLAG_MAN						0x80		//config for manual otp instead of OTP_FLAG
+#define OTP_FLAG_AUTO						0xF0		//config for auto line otp instead of OTP_FLAG
+#define OTP_FLAG_MAN						0xF0		//config for manual otp instead of OTP_FLAG
 #define ET_DLY_LOCK							1		    //ET delay lock enable: 1 = enable, 0 = disable
 #define CODE_MAX_LEN						512			//usart receive buffer length
 #define ADMESY_FLICKER_SAMPLES	2048		//samples for calculate flicker in DB (measure by MSE)
@@ -31,21 +30,25 @@
 #define AUTOSWITCH_T						20			//display pattern auto switch time: (AUTO_TIME*0.1)s
 #define AUTORESET_T							1800		//for RA auto reset period set, unit is 1 second
 #define OTP_TIMES_MAX						2				//maximum number of OTP times
-#define PIC_NUM									0 	  //picture loading number, 0 indicate not to load picture
-#define SD_MODE_PIC             2   
+#define PIC_NUM									0	  //picture loading number, 0 indicate not to load picture
 #define INFO_Y_AXIS							100   		//informatin display start Y point, uint is line
 
 #define SAM_CRST_OFFSET		      143 		//samsung crosstalk offset, uint is pixel, 9mm = ? pixel
+#define DOT_R1									100 //			//bright dot up-line
+#define DOT_G1									70  //
+#define DOT_B1									170 //
+#define DOT_R2									0   //			//bright dot middle-line
+#define DOT_G2									0   //
+#define DOT_B2									0   //
+#define DOT_R3									0		//      //bright dot down-line
+#define DOT_G3									0
+#define DOT_B3									0
 #define HW_CRST_BG_R						127			//HW color crosstalk background color
 #define HW_CRST_BG_G						127
 #define HW_CRST_BG_B						127
 #define HW_CROSS_BG_R						255			//HW color cross background color
 #define HW_CROSS_BG_G						255
 #define HW_CROSS_BG_B						0
-#define RECT_START_X						0			//for hole align
-#define RECT_START_Y						0
-#define RECT_SIZE_X							0
-#define RECT_SIZE_Y							0
 
 /*********************************************************************************
  * product informations
@@ -63,28 +66,28 @@
 #define	TEST_MODE_OQC1		10	
 
 #define	VERSION_DEBUG	"DEBUG_V1P0"	
-#define	VERSION_ET1		"ET1_V1P0"
+#define	VERSION_ET1		"ET1_V1P0"//ET1_V1P0 DJ_V1P0
 #define	VERSION_ET2		"ET2_V1P0"	  
 //#define	VERSION_ET2		"OQC2_V01"	//OQC2 = ET2 with the same delay
 //#define	VERSION_ET2		"FP_V01"		//FP = ET2 without delay
 #define	VERSION_ET3		"ET3_V1P0"
-#define	VERSION_OTP		"OTP_V1P0"
+#define	VERSION_OTP		"OTP_V1P0"//OTP_V1P0
 #define	VERSION_RA		"RA_V1P0"
-#define	VERSION_ESD		"ESD_V1P0"
-#define	VERSION_OD		"OD_V1P0"			   
+#define	VERSION_ESD		"ESDDJ_V1P0"
+#define	VERSION_OD		"OD_V2P0"			   
 #define	VERSION_DEMO	"DEMO_V1P0"
 #define	VERSION_CTP		"CTP_V1P0"	  
 #define	VERSION_OQC1	"OQC1_V1P0"	
-#define	VERSION_SDmode	"V1P0"
+#define	VERSION_SDmode	"V3P1"
 
 //Begin=====================SPEC should be edited by each projcet=======================
 #define SPEC_MIN_IOVCC	2.0								//mA
 #define SPEC_MIN_VSP 		2.0								//mA
 #define SPEC_MIN_VSN		2.0								//mA
 
-#define SPEC_MAX_RED_IOVCC		100.0			//mA
-#define SPEC_MAX_RED_VSP 			50.0				//mA
-#define SPEC_MAX_RED_VSN			50.0			//mA
+#define SPEC_MAX_RED_IOVCC		36.0			//mA
+#define SPEC_MAX_RED_VSP 			9.0				//mA
+#define SPEC_MAX_RED_VSN			9.0				//mA
 
 #define SPEC_MAX_FLICKER_IOVCC		200.0				//mA if not check ,use lager data such as 200
 #define SPEC_MAX_FLICKER_VSP 			200.0				//mA
@@ -98,9 +101,9 @@
 #define SPEC_MAX_CHECK_PIXEL_VSP 			200.0			//mA
 #define SPEC_MAX_CHECK_PIXEL_VSN			200.0			//mA
 
-#define SPEC_SLEEP_IOVCC			3500.0						//uA
-#define SPEC_SLEEP_VSP 				100.0				  //uA
-#define SPEC_SLEEP_VSN 				100.0					    //uA
+#define SPEC_SLEEP_IOVCC			2800.0						//uA
+#define SPEC_SLEEP_VSP 				180.0					  //uA
+#define SPEC_SLEEP_VSN 				50.0					    //uA
 
 #define SPEC_MIN_LEDA_NORMAL	38 				        //mA 38
 #define SPEC_MAX_LEDA_NORMAL	42								//mA
@@ -204,14 +207,13 @@
 #define Info_Typical_VCOM			"010E"							//VCOM typical
 //=========================SPEC SETTING(NECESSARY)================================//
 #define SPEC_Lv 							380.00
-#define SPEC_Lv_MAX							600.00
 #define SPEC_x 								0.295
 #define SPEC_y								0.315
-#define SPEC_xy_RANGE 							0.05	//Default TM spec = 0.03
-#define SPEC_GAMMA							2.2
-#define SPEC_GAMMA_RANGE 						0.30
-#define SPEC_FLICKER_DB 						-32.0
-#define SPEC_FLICKER_PERCENT 						10
+#define SPEC_xy_RANGE 				0.05						//Default TM spec = 0.03
+#define SPEC_GAMMA						2.2
+#define SPEC_GAMMA_RANGE 			0.30
+#define SPEC_FLICKER_DB 			-32.0
+#define SPEC_FLICKER_PERCENT 	10
 //=========================SPEC SETTING(OPTIONAL)================================//set 0.0 when no used
 #define Info_SHX1							0.0
 #define Info_SHY1							0.0
@@ -258,8 +260,6 @@
 #define Info_TarBx            0.149
 #define Info_TarBy            0.054
 #define Info_RangeB           0.5
-#define ID_OTP_FLAG           1
-#define GammaPro_VERSION      "GammaPro_V1P0"
 #define Info_Fliker_Code			"0x1B7 0x259 0x202; 0x1BC 0x202 0x200; 0x1BF 0x2FF 0x220;0x1BF 0x2FB 0x201;0x1BF 0x289 VCOM"//VCOM change code
 #define Info_Gamma_Register		""												//one gamma initial setting 
 //**********************************OTP, GAMMAEXPERT SETTING FINISH*******************************************************//
@@ -312,7 +312,6 @@ extern uint16_t SSDInitCode[];
 extern uint16_t ET1_InitCode[];
 extern uint16_t ET2_InitCode[];
 extern uint16_t RA_InitCode[];
-extern uint16_t GAMMA_InitCode[];
 extern uint8_t OTP_TIMES;
 extern uint16_t vcom_best;
 extern float flicker_best;
@@ -321,19 +320,10 @@ extern float black;
 extern float chroma_x;
 extern float chroma_y;
 extern float chroma_Lv;
-extern float chroma_x_before;
-extern float chroma_y_before;
-extern float chroma_Lv_before;
 extern uint8_t MAIN_PORT;
 extern uint8_t ID1;
 extern uint8_t ID2;
 extern uint8_t ID3;
-extern uint8_t DATE_YY;
-extern uint8_t DATE_MM;
-extern uint8_t DATE_DD;
-extern uint8_t DATE_HR;
-extern uint8_t DATE_MIM;
-extern uint8_t DATE_SEC;
 
 void SendPage(unsigned char pageNum); //add wwp 20180428
 	
@@ -358,7 +348,6 @@ void Date_Set(unsigned char year, unsigned char month, unsigned char day);
 extern char FWVersion[];
 ErrorStatus Program_FW(void);
 ErrorStatus RA_Program_FW(void);
-
 #endif
 
 #endif /* _INCLUDE_H */

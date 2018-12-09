@@ -3,7 +3,7 @@
 
 void OD_Visual_Check()
 {
-		TOTAL_DIS_NUM = 33;	
+		TOTAL_DIS_NUM = 29;	
  	switch (DIS_NUM) 
 	{
 		case (0): 		
@@ -28,7 +28,7 @@ void OD_Visual_Check()
 			FPGA_DisPattern(0, 0, 0, 255); //B
 			break;
 		case (6): 
-			FPGA_DisPattern(24, 128, 128, 128); //flicker
+			FPGA_DisPattern(22, 127, 127, 127); //flicker
 			break;
 		case (7): 
 			FPGA_DisPattern(1, 127, 0, 0); //crosstalk 1/3 ºÚ¿ò
@@ -69,57 +69,34 @@ void OD_Visual_Check()
 		case (19): 
 			FPGA_DisPattern(133, 255, 0, 0);//²Ê¿òCrosstalk£¨red +yellow)
 			break;
- 		case (20):
-			FPGA_Info_Visible(INFO_NONE);			
- 		  FPGA_DisPattern(71, 0, 0, 0);	//4*4 chessboard		
- 			break;
- 		case (21): 
-			FPGA_Info_Visible(INFO_RGBVAL);
- 		  FPGA_DisPattern(0, 127, 127, 127);//gray127	
- 			break;
- 		case (22):
-			FPGA_Info_Visible(INFO_NONE);			
- 		  FPGA_DisPattern(78, 0, 0, 0);	//6*8 chessboard		
- 			break;
- 		case (23): 
-			FPGA_Info_Visible(INFO_RGBVAL);
- 		  FPGA_DisPattern(0, 32, 32, 32);//gray32	
- 			break;
+		case (20): 
+			FPGA_DisPattern(51, 255, 0, 0);//chess board 8*8
+			break;
+	  case (21): 
+			FPGA_DisPattern(0, 127, 127, 127);//127
+			break;
+		case (22): 
+			FPGA_DisPattern(93, 255, 0, 0);//chess board 12*20
+			break;
+	  case (23): 
+			FPGA_DisPattern(0, 127, 127, 127);//127
+			break;
 		case (24): 
- 		  FPGA_DisPattern(0, 64, 64, 64);//gray64
- 			break;
-		case (25): 
-			FPGA_Info_Visible(INFO_RGBVAL);
- 		  FPGA_DisPattern(0, 127, 127, 127);//gray127	
- 			break;
-		case (26):
-			FPGA_Info_Visible(INFO_NONE);			
- 		  FPGA_DisPattern(51, 0, 0, 0);	//8*8 chessboard		
- 			break;
- 		case (27): 
-			FPGA_Info_Visible(INFO_RGBVAL);
- 		  FPGA_DisPattern(0, 127, 127, 127);//gray127	
- 			break;
-		case (28):
-			FPGA_Info_Visible(INFO_NONE);			
- 		  FPGA_DisPattern(112, 0, 89, 113);	//12*19 chessboard		
- 			break;
- 		case (29): 
-			FPGA_Info_Visible(INFO_RGBVAL);
- 		  FPGA_DisPattern(0, 127, 127, 127);//gray127	
- 			break;
-		case (30):
-			FPGA_Info_Visible(INFO_NONE);			
- 		  FPGA_DisPattern(112, 0, 53, 107);	//20*20 chessboard		
- 			break;
- 		case (31): 
-			FPGA_Info_Visible(INFO_RGBVAL);
- 		  FPGA_DisPattern(0, 60, 60, 60);//gray60
- 			break;
-		case (32): 
-			FPGA_Info_Visible(INFO_RGBVAL);
- 		  FPGA_DisPattern(0, 127, 127, 127);//gray127	
- 			break;
+			FPGA_DisPattern(111, 255, 54, 117);//chess board 20*20
+			break;
+	  case (25): 
+			FPGA_DisPattern(0, 127, 127, 127);//128
+			break;
+	  case (26): 
+			FPGA_DisPattern(0, 60, 60, 60);//60
+			break;
+		case (27): 
+			FPGA_DisPattern(77, 255, 0, 0);//chess board 6*8
+			break;
+	  case (28): 
+			FPGA_DisPattern(0, 127, 127, 127);//128
+			break;
+		
 		default: 
 			FPGA_DisPattern(0, 0, 0, 0); 
 			break;

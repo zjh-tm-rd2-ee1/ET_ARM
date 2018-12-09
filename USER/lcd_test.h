@@ -11,7 +11,7 @@ extern FlagStatus PWM_NG;
 extern FlagStatus ID_NG;
 extern FlagStatus FW_NG;
 extern FlagStatus FPGA_NG;
-extern FlagStatus OSC_TRIM_NG;
+extern FlagStatus OSC_TRIM_NG;//LHB
 
 extern float SPEC_MAX_IOVCC;							//mA
 extern float SPEC_MAX_VSP;								//mA

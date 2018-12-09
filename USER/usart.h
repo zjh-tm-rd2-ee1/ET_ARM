@@ -7,7 +7,9 @@
 
 extern USART_TypeDef* PC_COM;
 extern USART_TypeDef* MSE_COM;
-
+extern uint8_t rdataTemp;
+extern char SendData[20];
+extern FlagStatus USART_CMD_FLAG;
 extern FlagStatus USART_ControlStatus;
 extern char admesy_RData[];
 extern uint32_t admesy_RDataCnt;
