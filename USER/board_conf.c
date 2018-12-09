@@ -11,12 +11,10 @@
 void Board_Init(void)
 {
 #ifdef CURRENT_METER
-	char Str_Temp[64];
-	char File_Name[32];
+	char Str_Temp[64];//因为电流计没有启用，所以等同于忽略
+	char File_Name[32];//因为电流计没有启用，所以等同于忽略
 #endif
-	
-//	uint32_t  CPU_ID[3];
-	
+
 	OTP_FLAG = OTP_FLAG_MAN; //load defaut otp option
 	if (TEST_MODE == TEST_MODE_OTP)
 	{
@@ -24,35 +22,31 @@ void Board_Init(void)
 		MSE_COM = USART1;
 	}
 	
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);//使能各个GPIO口
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);//LED1、2的端口
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);//LED3		的端口
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-
+	
+//	printf("\r\nHow if the printf is called before USART1 initialized?\r\n");
 	USART1_Config();
+	//实验证明，如果在USART1初始化前调用printf会导致程序卡死
+	printf("\r\nHow if the printf is called before UART4 initialized?\r\n");
  	UART4_Config();
-	printf("\r\nUSART configuration is ready.\r\n");
-		
-	//STM32F103系列
-////	CPU_ID[0] = *(__IO u32*)(0x1FFFF7E8);
-////	CPU_ID[1] = *(__IO u32*)(0x1FFFF7EC);
-////	CPU_ID[2] = *(__IO u32*)(0x1FFFF7F0);
-//	//STM32F207/STM32F40X系列
-//	CPU_ID[0] = *(__IO u32*)(0x1FFF7A10);
-//	CPU_ID[1] = *(__IO u32*)(0x1FFF7A14);
-//	CPU_ID[2] = *(__IO u32*)(0x1FFF7A18);
-//	printf("CPU_ID[0] = 0x%08X\r\n", CPU_ID[0]);
-//	printf("CPU_ID[1] = 0x%08X\r\n", CPU_ID[1]);
-//	printf("CPU_ID[2] = 0x%08X\r\n", CPU_ID[2]);
+	//实验证实，UART4与上位机无关
+	printf("\r\nUSART configuration is ready.\r\n");//这是printf在整个程序运行时的第一次调用
 	
  	TIM3_Config();
  	printf("\r\nTimer tick start.\r\n[%.3fs]\r\n", TIMESTAMP);
 	
 	SysTick_Init();
 	printf("\r\nSystem Tick configuration is ready.\r\n");
+	//针对SysTick_Config，其输入参数为两次中断间的滴答次数，每次滴答的时间为系统频率的倒数，因此若系统主频越大，滴答速度越快，定时也就更精确
+	//每次滴答的时间：1/系统主频
+	//中断周期：滴答次数*每次滴答的时间=滴答次数/系统主频
+	//中断频率：系统主频/滴答次数
 
 	NVIC_Config();
 	printf("\r\nNVIC configuration is ready.\r\n");
@@ -70,7 +64,7 @@ void Board_Init(void)
 //	}
 	
 	TEST_Config_ON();
-	if ((GPIO_ReadInputDataBit(TEST26_GPIO_PORT, TEST26_PIN) == SET)) 
+	if ((GPIO_ReadInputDataBit(TEST26_GPIO_PORT, TEST26_PIN) == SET)) //当第26测试脚为高电平时激活自动线功能
 	{
 		printf("\r\n*#*#AUTOLINE_ENABLE#*#*\r\n");
 		auto_line = SET;
@@ -96,16 +90,16 @@ void Board_Init(void)
 	printf("\r\nPower enable configuration is ready.\r\n");
 
 	POWER_I2C_Config();
-	printf("\r\nI2C for TPS65312 configuration is ready.\r\n");
-
+	printf("\r\nI2C for TPS65312 configuration is ready.\r\n");//TPS65132还是TPS65312?
+	//TPS65312：无结果 TPS65132：显示用双极性电源
 	EEPROM_I2C_Config();
 	printf("\r\nI2C for EEPROM configuration is ready.\r\n");
 
 	DSENSOR_I2C_Config();
-	printf("\r\nI2C for AD7994 configuration is ready.\r\n");
+	printf("\r\nI2C for AD7994 configuration is ready.\r\n");//用于光敏电阻板的模拟信号转换
  
 	Admesy_Init();
-	printf("\r\nAdmesy configuration is ready.\r\n");
+	printf("\r\nMSE is ready.\r\n");
 
 	FPGA_FSMC_Config();
 	FPGA_SPI_Config();
@@ -155,15 +149,15 @@ void NVIC_Config(void)
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1); 
   NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn; // TIMER2: PWM output
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; 
- 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; //抢占优先级为0
+ 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;//响应优先级为2
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
   NVIC_Init(&NVIC_InitStructure); 
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1); 
   NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn; // TIMER3: system tick counter:ms++
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0; 
- 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+ 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;//响应优先级为1
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
   NVIC_Init(&NVIC_InitStructure); 
 	
@@ -175,14 +169,14 @@ void NVIC_Config(void)
   NVIC_Init(&NVIC_InitStructure); 
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0); 
-  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn; 
+  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;//PC串口中断 
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
  	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2; 
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
   NVIC_Init(&NVIC_InitStructure); 
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0); 
-  NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;	 
+  NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;//MSE串口中断
  	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
  	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 

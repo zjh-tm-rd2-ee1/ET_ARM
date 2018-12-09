@@ -23,26 +23,6 @@
 #define    TCH_RST_PIN				       GPIO_Pin_3		//TEST24: TP_RST --> TP_RST
 #define    TCH_RST_GPIO_PORT		       GPIOC
 
-
-//YWB
-#define    TCH_SPI_CSN1_2_PIN                GPIO_Pin_4	
-#define    TCH_SPI_CSN1_2_GPIO_PORT          GPIOE
-
-#define    TCH_SPI_CSN2_2_PIN                GPIO_Pin_5		
-#define    TCH_SPI_CSN2_2_GPIO_PORT          GPIOE
-
-#define    TCH_SPI_CSN3_2_PIN                GPIO_Pin_6		
-#define    TCH_SPI_CSN3_2_GPIO_PORT          GPIOE
-
-#define    TCH_SPI_CSN1_3_PIN                GPIO_Pin_6	
-#define    TCH_SPI_CSN1_3_GPIO_PORT          GPIOF
-
-#define    TCH_SPI_CSN2_3_PIN                GPIO_Pin_7		
-#define    TCH_SPI_CSN2_3_GPIO_PORT          GPIOF
-
-#define    TCH_SPI_CSN3_3_PIN                GPIO_Pin_8		
-#define    TCH_SPI_CSN3_3_GPIO_PORT          GPIOF
-
 uint16_t    TCH_SPI_CSN_PIN=TCH_SPI_CSN1_PIN;
 GPIO_TypeDef * TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN1_GPIO_PORT;
 /* 
@@ -142,8 +122,7 @@ uint8_t jj = 0;
  for ( ; ; )
  {
  if (kk>13) break;
-// FW_project[jj] = PROJECT_NO[jj];
-	  FW_project[jj] = FW_NO[jj];
+ FW_project[jj] = PROJECT_NO[jj];
  jj++ ;
  kk++ ;
  }
@@ -180,22 +159,19 @@ else if (frs == FR_OK)
   f_lseek(&fwfile, fileInfo.fsize); //important
   
    printf("\r\n The FW File has open!\r\n");
-		ret = SUCCESS;
- 		return ret;		
+ 		return SUCCESS;		
  		
   }
   else
   {
   printf("FW file open fail!\r\n");
-		ret = ERROR;
-  return ret;
+  return ERROR;
   }
  }	
  else
  {
  printf("There is no FW file match the project %s\r\n", FW_project);
-	 ret = ERROR;
- return ret;
+ return ERROR;
  }
 }
 
@@ -229,6 +205,7 @@ GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+
 GPIO_InitStructure.GPIO_Pin = TCH_RST_PIN; //TEST24 TP_RST
 GPIO_Init(TCH_RST_GPIO_PORT, &GPIO_InitStructure);
 GPIO_SetBits(TCH_RST_GPIO_PORT, TCH_RST_PIN);
@@ -249,6 +226,7 @@ GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
 GPIO_InitStructure.GPIO_Mode  =  GPIO_Mode_IN;
 GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+
 GPIO_InitStructure.GPIO_Pin = TCH_SPI_MISO_PIN ;
 GPIO_Init(TCH_SPI_MISO_GPIO_PORT , &GPIO_InitStructure);
 }
@@ -266,80 +244,31 @@ void TCH_SPI_UNConfig(void)
 {
 GPIO_InitTypeDef GPIO_InitStructure;
 
-GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 
+GPIO_InitStructure.GPIO_Pin = TCH_SPI_MOSI_PIN; //TEST18: POWER_I2C_SDA
+GPIO_Init(TCH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
 
+GPIO_InitStructure.GPIO_Pin = TCH_SPI_MISO_PIN ; //TEST19: POWER_I2C_SCL
+GPIO_Init(TCH_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);	
 
-GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN1_PIN;
-GPIO_Init(TCH_SPI_CSN1_GPIO_PORT, &GPIO_InitStructure);
-
-GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN2_PIN;
-GPIO_Init(TCH_SPI_CSN2_GPIO_PORT, &GPIO_InitStructure);
+GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	
-	GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN3_PIN;
-GPIO_Init(TCH_SPI_CSN3_GPIO_PORT, &GPIO_InitStructure);
+GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN_PIN; //TEST22: TP_SDA
+GPIO_Init(TCH_SPI_CSN_GPIO_PORT, &GPIO_InitStructure);
 
-GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN1_2_PIN;
-GPIO_Init(TCH_SPI_CSN1_2_GPIO_PORT, &GPIO_InitStructure);
+GPIO_InitStructure.GPIO_Pin = TCH_RST_PIN; //TEST24: TP_RST
+GPIO_Init(TCH_RST_GPIO_PORT, &GPIO_InitStructure);
 
-GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN2_2_PIN;
-GPIO_Init(TCH_SPI_CSN2_2_GPIO_PORT, &GPIO_InitStructure);
-	
-	GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN3_2_PIN;
-GPIO_Init(TCH_SPI_CSN3_2_GPIO_PORT, &GPIO_InitStructure);
+GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+GPIO_InitStructure.GPIO_PuPd =  GPIO_PuPd_UP;	
 
-GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN1_3_PIN;
-GPIO_Init(TCH_SPI_CSN1_3_GPIO_PORT, &GPIO_InitStructure);
-
-GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN2_3_PIN;
-GPIO_Init(TCH_SPI_CSN2_3_GPIO_PORT, &GPIO_InitStructure);
-	
-	GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN3_3_PIN;
-GPIO_Init(TCH_SPI_CSN3_3_GPIO_PORT, &GPIO_InitStructure);
-
-//	
-	GPIO_SetBits(TCH_SPI_CSN1_GPIO_PORT, TCH_SPI_CSN1_PIN);
-	GPIO_SetBits(TCH_SPI_CSN2_GPIO_PORT, TCH_SPI_CSN2_PIN);
-	GPIO_SetBits(TCH_SPI_CSN3_GPIO_PORT, TCH_SPI_CSN3_PIN);
-	GPIO_SetBits(TCH_SPI_CSN1_2_GPIO_PORT, TCH_SPI_CSN1_2_PIN);
-	GPIO_SetBits(TCH_SPI_CSN2_2_GPIO_PORT, TCH_SPI_CSN2_2_PIN);
-	GPIO_SetBits(TCH_SPI_CSN3_2_GPIO_PORT, TCH_SPI_CSN3_2_PIN);
-	GPIO_SetBits(TCH_SPI_CSN1_3_GPIO_PORT, TCH_SPI_CSN1_3_PIN);
-	GPIO_SetBits(TCH_SPI_CSN2_3_GPIO_PORT, TCH_SPI_CSN2_3_PIN);
-	GPIO_SetBits(TCH_SPI_CSN3_3_GPIO_PORT, TCH_SPI_CSN3_3_PIN);
-	
-//GPIO_InitTypeDef GPIO_InitStructure;
-
-//GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-
-//GPIO_InitStructure.GPIO_Pin = TCH_SPI_MOSI_PIN; //TEST18: POWER_I2C_SDA
-//GPIO_Init(TCH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
-
-//GPIO_InitStructure.GPIO_Pin = TCH_SPI_MISO_PIN ; //TEST19: POWER_I2C_SCL
-//GPIO_Init(TCH_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);	
-
-//GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-//GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-////	
-////GPIO_InitStructure.GPIO_Pin = TCH_SPI_CSN_PIN; //TEST22: TP_SDA
-////GPIO_Init(TCH_SPI_CSN_GPIO_PORT, &GPIO_InitStructure);
-
-//GPIO_InitStructure.GPIO_Pin = TCH_RST_PIN; //TEST24: TP_RST
-//GPIO_Init(TCH_RST_GPIO_PORT, &GPIO_InitStructure);
-
-//GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-//GPIO_InitStructure.GPIO_PuPd =  GPIO_PuPd_UP;	
-
-//GPIO_InitStructure.GPIO_Pin = TCH_SPI_SCK_PIN; //TEST23: I_IOVCC
-//GPIO_Init(TCH_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
-
-
+GPIO_InitStructure.GPIO_Pin = TCH_SPI_SCK_PIN; //TEST23: I_IOVCC
+GPIO_Init(TCH_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
 }
  /*********************************************************************************
 * Function: TCH_SPI Write length Byte mode 0
@@ -349,7 +278,7 @@ GPIO_Init(TCH_SPI_CSN3_3_GPIO_PORT, &GPIO_InitStructure);
 * Return: none
 * Call: Internal
 */
-static void TCH_SPI_WriteByte(uint8_t* dataWrt, uint16_t len) 
+static void TCH_SPI_WriteByte(uint8_t* dataWrt, uint16_t len) //长度设置为16bit :unsigned  int类型，数值范围0~65535
 {    
 uint16_t i;  
 uint8_t bitPos;
@@ -386,18 +315,16 @@ uint8_t bitPos;
 */
 
 static void TCH_SPI_ReadByte(uint8_t* dataRdbuf, uint16_t len)  // fall edge
-{
+{                                         //长度设置为16bit :unsigned  int类型，数值范围0~65535
   uint16_t i; 
   uint8_t bitPos;
-  uint8_t dataRd = 0x00;	
+  uint8_t dataRd = 0x00;				
   for(i=0;i<len;i++)
   { 
    bitPos = 0x80;  	
 	 while (bitPos)
 	{	
-		Delay_ms(5);
-	  GPIO_ResetBits(TCH_SPI_SCK_GPIO_PORT, TCH_SPI_SCK_PIN); 	
-//			Delay_ms(10);
+	 GPIO_ResetBits(TCH_SPI_SCK_GPIO_PORT, TCH_SPI_SCK_PIN); 		
 	  if (GPIO_ReadInputDataBit(TCH_SPI_MISO_GPIO_PORT,TCH_SPI_MISO_PIN) == SET)
 	 {
 	   dataRd |= bitPos;	
@@ -408,19 +335,16 @@ static void TCH_SPI_ReadByte(uint8_t* dataRdbuf, uint16_t len)  // fall edge
 	  }
 	 if(TEST_MODE ==TEST_MODE_RA)
 	 Delay_us(10);//RA delay
-	 	Delay_ms(1);
 	 GPIO_SetBits(TCH_SPI_SCK_GPIO_PORT, TCH_SPI_SCK_PIN);		
 	 bitPos >>= 1;
 	 if(TEST_MODE ==TEST_MODE_RA)
 	 Delay_us(10);//RA delay
 	} 
-	  Delay_ms(1);
     GPIO_ResetBits(TCH_SPI_SCK_GPIO_PORT, TCH_SPI_SCK_PIN);// SCK last low
     dataRdbuf[i]=dataRd;  
     dataRd=0x00;	
 	if(TEST_MODE ==TEST_MODE_RA)
-//	Delay_us(10);//RA delay
-  Delay_ms(1);//RA delay ywb
+	Delay_us(10);//RA delay
 	else
     Delay_us(1);//ET delay
   }	
@@ -440,25 +364,23 @@ uint8_t write_buf[4];
 write_buf[0] = 0xFF;  //set index/page/addr command 
 write_buf[1] =(addr >> 15) & 0xFF; //NT36672A addr:23bit
 write_buf[2] =(addr >> 7) & 0xFF;
+	
 GPIO_ResetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip selection 
-Delay_us(100);
-Delay_ms(1);
+	
+Delay_us(1);
 TCH_SPI_WriteByte(write_buf,3);
 Delay_us(1);
 GPIO_SetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//CS=1,cancel chip selection
-Delay_ms(1);
-	//---write data to index---
+//---write data to index---
 write_buf[0] = addr&(0x7F);
 write_buf[0] = SPI_WRITE_MASK(write_buf[0]); //bit8 R/W=0/1;
 GPIO_ResetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip selection 
-Delay_us(100);
-	Delay_ms(1);
+Delay_us(1);
 TCH_SPI_WriteByte(write_buf,1);
 TCH_SPI_WriteByte(write_data,length);
 Delay_us(1);
 GPIO_SetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//CS=1,cancel chip selection
 Delay_us(1);
-Delay_ms(1);
 }
 
 /*********************************************************************************
@@ -477,26 +399,22 @@ Temp_buf[0]=0xFF; // Set index/page/addr command
 Temp_buf[1] =(ahb_addr >> 15) & 0xFF; //NT36672A addr:23bit
 Temp_buf[2] =(ahb_addr >> 7) & 0xFF;
 GPIO_ResetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip selection 
-Delay_us(100);
-	Delay_ms(1);
+Delay_us(1);
 TCH_SPI_WriteByte(Temp_buf,3); //write
 Delay_us(1);
 GPIO_SetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip diselection 
-Delay_ms(1);
-	//---write data to index---
+//---write data to index---
 Temp_buf[0]= ahb_addr&(0x7F);
 Temp_buf[1]= 0x00;
 Temp_buf[0]= SPI_READ_MASK(Temp_buf[0]); //bit8 R/W=0/1;
 
 GPIO_ResetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip selection 
-Delay_us(300);
-	Delay_ms(1);
+Delay_us(3);
 TCH_SPI_WriteByte(Temp_buf,2);
 TCH_SPI_ReadByte(read_buf,length);
 Delay_us(1);
 GPIO_SetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip diselection 
 Delay_us(3);
-Delay_ms(1);
 }
 
 /*********************************************************************************
@@ -510,6 +428,7 @@ Delay_ms(1);
 static void	WriteSram(uint8_t* fwCeil, uint32_t start_addr, uint32_t Len)
 {   
 	TCH_SPI_WordWrite(start_addr,Len,fwCeil);
+	//(uint32_t addr, uint16_t length , uint8_t* write_data)
 }
 
 /*********************************************************************************
@@ -527,12 +446,10 @@ buf[0] = 0xFF;	//set index/page/addr command
 buf[1] = (addr >> 15) & 0xFF;
 buf[2] = (addr >> 7) & 0xFF;
 GPIO_ResetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip selection 
-Delay_us(100);
-Delay_ms(1);
+Delay_us(1);
 TCH_SPI_WriteByte(buf,3); //write
 Delay_us(1);
 GPIO_SetBits(TCH_SPI_CSN_GPIO_PORT, TCH_SPI_CSN_PIN);//chip diselection 
-Delay_ms(1);
 }
 /*********************************************************************************
 *Description: Novatek ILM_DLM CRC check enable
@@ -557,7 +474,7 @@ Delay_ms(5);
 * Return: none
 * Call: Internal
 */
-static void nvt_boot_ready()
+static void nvt_boot_ready(uint8_t ready)
 {
 //---write BOOT_RDY status cmds---
 uint8_t buf[1];
@@ -565,6 +482,11 @@ buf[0]=0x01;
 TCH_SPI_WordWrite(BOOT_RDY_ADDR,1,buf);
 Delay_ms(5);
 }
+
+
+
+
+
 
 /*********************************************************************************
 * Description: 	Novatek touchscreen reset MCU (boot) function.
@@ -800,15 +722,16 @@ uint32_t BIN_addr, SRAM_addr, size;
 uint16_t len = 0;
 int32_t count = 0;
 uint32_t i = 0;
+uint32_t j = 0;
 ErrorStatus ret =SUCCESS; 
-char name[12];
+char *name;
   for (list = 0; list < partition; list++) 
  {   
 	/* initialize variable */
 	SRAM_addr = bin_map[list].SRAM_addr;
 	size = bin_map[list].size;
 	BIN_addr = bin_map[list].BIN_addr;
-	strcpy(name,bin_map[list].name);
+	name = bin_map[list].name;
 
 	/* Check data size */
 	if ((BIN_addr + size) > fileSize)
@@ -836,6 +759,7 @@ char name[12];
     {			 
 	  SD_FW_Read(FWContent,len);
 	  WriteSram(FWContent,SRAM_addr,len);
+		//write_data,addr,len
 	  SRAM_addr += 1024;
 	  BIN_addr += 1024;
 	  size -= 1024;
@@ -933,9 +857,7 @@ if (is_ilm_dlm)
 	  /* polling for dma crc check finish */
 	  while (1)
 	  {
-			     
                         TCH_SPI_WordRead(DMA_CRC_FLAG_ADDR,1,fwbuf);
-							
 	  	/*
 	  	 * [0] DMA_CRC_FLAG: 0-DMA CRC pass, 1-DMA CRC error
 	  	 * [1] DMA_CRC_DONE: 0-CRC checking, 1-finish
@@ -949,13 +871,10 @@ if (is_ilm_dlm)
 	  	retry++;
 	  	if (retry > 20) 
 	  {
-//			while(1)
-//			{
 	  	TCH_SPI_WordRead(R_DLM_CHECKSUM_ADDR,4,fwbuf);
 	  	printf("\r\n partition %d dma crc error 0x%02X\n", list-1, crc_flag);
 	  	printf("\r\n partition %d BIN_CRC=0x%08X, HW_CRC=0x%08X\n",list-1, bin_map[list].crc, byte_to_word(&fwbuf[0]));
 	  	ret=ERROR;
-//			}
 	  	break;
       
 	  }
@@ -1029,8 +948,7 @@ ErrorStatus Program_FW(void)//Download_Firmware_HW_CRC(void)//Download_Firmware_
 ErrorStatus ret =SUCCESS;
 #ifdef NO_FLASH_MODE
 uint8_t retry = 0;
-//uint8_t buf[1];
-	
+uint32_t i=0;
 TCH_SPI_Config();//spi_config
 if(SD_FW_OPEN()==ERROR)// open fw file
 return ERROR;
@@ -1056,14 +974,9 @@ if (!ret)
   }
   
   /* clear fw reset status */
-//	buf[0]=0xAA;
-//	while(1){
   TCH_SPI_WordWrite(EVENT_MAP_RESET_COMPLETE,1, 0x00);
-//	TCH_SPI_WordRead(EVENT_MAP_RESET_COMPLETE,1, buf);
-//	}
-	
-   ret = Check_HW_CRC(0);	//Check overlay & Info (also name Check DMA CRC)
-
+  
+  ret = Check_HW_CRC(0);	//Check overlay & Info (also name Check DMA CRC)
   if (!ret) 
   {
   	printf("\r\n check hw crc failed, retry=%d\n", retry);
@@ -1072,7 +985,7 @@ if (!ret)
   /* Set BLD_CRC_EN Bit to 1*/
    nvt_bld_crc_en();
   /* Set Boot Ready Bit */
-  nvt_boot_ready();
+  nvt_boot_ready(1);
   
   ret = Check_HW_CRC(1);	//Check ILM & DLM
   if (!ret) 
@@ -1093,16 +1006,17 @@ if (!ret)
   
 fail:
   retry++;
-//  if(retry >3) {
+  if(retry >3) {
   	printf("\r\n error, retry=%d\n", retry);
   	ret=ERROR;
   	break;
-//  }
+  }
 	}
 SD_FW_Close();
 TCH_SPI_UNConfig();
 #endif
-return ret;	
+return ret;
+	
 }
 
 /*********************************************************************************
@@ -1115,76 +1029,36 @@ return ret;
 */
 ErrorStatus RA_Program_FW(void)
 {
-uint8_t i=0;
-uint8_t k=0;
-ErrorStatus ret=SUCCESS;
-printf("\r\n Begin FW Program !\r\n");
-	TCH_SPI_UNConfig();
-	for (i=0;i<9;i++)
+	ErrorStatus ret=SUCCESS;
+	printf("\r\n Begin FW Program !\r\n");
+	if(Program_FW())
+	printf("\r\n Panel 1 FW Program success!\r\n");
+	else
 	{
-    if (i==0)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN1_2_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN1_2_GPIO_PORT;
-		}
-		if (i==1)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN2_2_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN2_2_GPIO_PORT;
-		}
-		 if (i==2)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN3_2_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN3_2_GPIO_PORT;
-		}
-		if (i==3)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN1_3_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN1_3_GPIO_PORT;
-		}
-		if (i==4)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN2_3_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN2_3_GPIO_PORT;
-		}
-		if (i==5)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN3_3_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN3_3_GPIO_PORT;
-		}
-		 if (i==6)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN1_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN1_GPIO_PORT;
-		}
-		if (i==7)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN2_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN2_GPIO_PORT;
-		}
-		if (i==8)		
-		{
-			TCH_SPI_CSN_PIN=TCH_SPI_CSN3_PIN;
-			TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN3_GPIO_PORT;
-		}
-	  if(Program_FW())
-		{
-			k=0;
-			printf("\r\n FW Program success!, Panel NO =%d\n", i+1);
-		}
-	  else
-		 {
-			 printf("\r\n FW Program error!, Panel NO =%d\n", i+1);
-			 i--;
-			 k++;
-			 if (k==10)
-			 {
-				 ret=ERROR;
-				 break;
-			 }		   
-		 }
-		 Delay_ms(200);
-		 TCH_SPI_UNConfig();
+	 printf("\r\n Panel 1 FW Program error!\r\n");
+	 ret=ERROR;
 	}
+	TCH_SPI_CSN_PIN=TCH_SPI_CSN2_PIN;
+	TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN2_GPIO_PORT;
+	if(Program_FW())
+	printf("\r\n Panel 2 FW Program success!\r\n");
+	else
+	{
+	 printf("\r\n Panel 2 FW Program error!\r\n");
+	 ret=ERROR;
+	}
+	TCH_SPI_CSN_PIN=TCH_SPI_CSN3_PIN;
+	TCH_SPI_CSN_GPIO_PORT=TCH_SPI_CSN3_GPIO_PORT;
+	if(Program_FW())
+	printf("\r\n Panel 3 FW Program success!\r\n");
+	else
+   {
+	 printf("\r\n Panel 3 FW Program error!\r\n");
+	 ret=ERROR;
+   }
+ 	TCH_SPI_UNConfig();
   return ret;
 }
+
+
+

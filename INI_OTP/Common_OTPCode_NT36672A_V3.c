@@ -1,101 +1,18 @@
 #include "include.h"
 
-uint8_t OTP_TIMES = 0;          // OTPÊ¨°Êï∞
-uint16_t vcom_best = 0x010E;    // ÊúÄ‰Ω≥VCOM
+uint8_t OTP_TIMES = 0;          // OTP¥Œ ˝
+uint16_t vcom_best = 0x0118;    // ◊Óº—VCOM
 uint8_t MAIN_PORT = PORT1;
 
-/*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöID_OTP
- * ÊèèËø∞  Ôºö//---CH1 OTP Color ID , White_Lv ID , Project ID----//
- * ËæìÂÖ•  Ôºö/
- * ËæìÂá∫  Ôºö
- * ËøîÂõû  Ôºö
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
- */
-void ID_OTP()
-{
-	 uint8_t   uc_buf[1];
-	 uint16_t  a;	
-		
-	//--CH1 Color ID 
-		SendPage(0x20);
-		uc_buf[0]=ID_COLOR;//
-		MIPI_DCS_Write((PORT0 | PORT1), 0x44, 1, uc_buf);
-	
-	//--CH1 Project ID
-	//--DP082---JHSN771100-----TL065FVXF01-00/TL065FVXF06-00/TL065FVXF07-00/TL065FVXF08-00
-	//--DP102---JACK771100-----TL065FVXF02-00/TL065FVXF03-00/TL065FVXF04-00/TL065FVXF05-00
-		SendPage(0x20);
-		uc_buf[0]=ID_PJ1;//		
-		MIPI_DCS_Write((PORT0 | PORT1), 0x23, 1, uc_buf);
-	
-		uc_buf[0]=ID_PJ2;//
-		MIPI_DCS_Write((PORT0 | PORT1), 0x24, 1, uc_buf);
-	
-		uc_buf[0]=ID_PJ3;//
-		MIPI_DCS_Write((PORT0 | PORT1), 0x25, 1, uc_buf);
-
-		uc_buf[0]=ID_PJ4;//
-		MIPI_DCS_Write((PORT0 | PORT1), 0x26, 1, uc_buf);
-
-		uc_buf[0]=ID_PJ5;//
-		MIPI_DCS_Write((PORT0 | PORT1), 0x27, 1, uc_buf);
-		
-		uc_buf[0]=ID_PJ6;//
-		MIPI_DCS_Write((PORT0 | PORT1), 0x28, 1, uc_buf);
-		
-		uc_buf[0]=ID_PJ7;//
-		MIPI_DCS_Write((PORT0 | PORT1), 0x46, 1, uc_buf);		
-	
-
-	//CH1 White_Lv ID 
-	//--Lv<380: ---NG,
-	//--Lv=380: ---0000,0001;
-	//--Lv=381~507: ---Lv-380Ôºõ0000,0001--0111,1111;
-	//--Lv=508~634: ---Lv-379Ôºõ 1000,0001--1111,1111;
-	//--Lv>634: ---1111,1111;
-		if (GAMMAEXPERT == SET)
-		{
-			a=(uint16_t)(ID3 * 1.5 + 308);
-			printf("white_Lv = %d\r\n",a);
-			 if(a==380)
-				uc_buf[0]=1;
-			 else if((a>=381)&&(a<=507))
-				uc_buf[0]=a-380;
-			 else if((a>=508)&&(a<=634))
-				uc_buf[0]=a-379;
-			 else if(a>634)
-				uc_buf[0]=255;
-
-			SendPage(0x20);
-			MIPI_DCS_Write((PORT0 | PORT1), 0x45, 1, uc_buf);	
-		}
-		else
-		{
-			a=(uint16_t)(chroma_Lv);
-			printf("white_Lv = %d\r\n",a);
-			 if(a==380)
-				uc_buf[0]=1;
-			 else if((a>=381)&&(a<=507))
-				uc_buf[0]=a-380;
-				else if((a>=508)&&(a<=634))
-				uc_buf[0]=a-379;
-			 else if(a>634)
-				uc_buf[0]=255;
-			
-			SendPage(0x20);
-			MIPI_DCS_Write((PORT0 | PORT1), 0x45, 1, uc_buf);	
-		}
-		
-}
+void ID_OTP();
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöSendPage
- * ÊèèËø∞  ÔºöÂàáÈ°µ
- * ËæìÂÖ•  Ôºö-pageNum
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöÊó†
- * Ë∞ÉÁî®  ÔºöÂÜÖÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫SendPage
+ * √Ë ˆ  £∫«–“≥
+ *  ‰»Î  £∫-pageNum
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫Œﬁ
+ * µ˜”√  £∫ƒ⁄≤øµ˜”√
  */
 void SendPage(unsigned char pageNum)
 {
@@ -107,12 +24,12 @@ void SendPage(unsigned char pageNum)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöScanForward
- * ÊèèËø∞  ÔºöÊ≠£Êâ´
- * ËæìÂÖ•  ÔºöÊó†
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöÊó†
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫ScanForward
+ * √Ë ˆ  £∫’˝…®
+ *  ‰»Î  £∫Œﬁ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫Œﬁ
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 void ScanForward(void)
 {
@@ -125,12 +42,12 @@ void ScanForward(void)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöScanBackward
- * ÊèèËø∞  ÔºöÂèçÊâ´
- * ËæìÂÖ•  ÔºöÊó†
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöÊó†
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫ScanBackward
+ * √Ë ˆ  £∫∑¥…®
+ *  ‰»Î  £∫Œﬁ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫Œﬁ
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 void ScanBackward(void)
 {
@@ -143,12 +60,12 @@ void ScanBackward(void)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöVcom_Set
- * ÊèèËø∞  ÔºöËÆæÁΩÆVCOM
- * ËæìÂÖ•  Ôºö-VCOMÂÄº
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöÊó†
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫Vcom_Set
+ * √Ë ˆ  £∫…Ë÷√VCOM
+ *  ‰»Î  £∫-VCOM÷µ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫Œﬁ
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 void VCOM_Set(unsigned short vcom)
 {
@@ -183,12 +100,12 @@ void VCOM_Set(unsigned short vcom)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöVCOM_Read
- * ÊèèËø∞  ÔºöÂõûËØªVCOM
- * ËæìÂÖ•  ÔºöÊó†
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöVCOMÂÄº
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫VCOM_Read
+ * √Ë ˆ  £∫ªÿ∂¡VCOM
+ *  ‰»Î  £∫Œﬁ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫VCOM÷µ
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 unsigned short VCOM_Read(void)
 {
@@ -209,12 +126,12 @@ unsigned short VCOM_Read(void)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöNVM_Flag
- * ÊèèËø∞  ÔºöÂõûËØªNVM_Flag
- * ËæìÂÖ•  ÔºöÊó†
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöNVM_Flag
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫NVM_Flag
+ * √Ë ˆ  £∫ªÿ∂¡NVM_Flag
+ *  ‰»Î  £∫Œﬁ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫NVM_Flag
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 ErrorStatus NVM_Flag(void)
 {
@@ -240,12 +157,12 @@ ErrorStatus NVM_Flag(void)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöCRCCheck
- * ÊèèËø∞  ÔºöÂõûËØªNVM_Flag
- * ËæìÂÖ•  ÔºöÊó†
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöNVM_Flag
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫CRCCheck
+ * √Ë ˆ  £∫ªÿ∂¡NVM_Flag
+ *  ‰»Î  £∫Œﬁ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫NVM_Flag
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 void MTP_CRC_Calc(uint8_t * readbuf)
 {
@@ -279,12 +196,12 @@ void MTP_CRC_Calc(uint8_t * readbuf)
  }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöOTPTimes_Read
- * ÊèèËø∞  ÔºöÂõûËØªOTPÊ¨°Êï∞
- * ËæìÂÖ•  ÔºöÊó†
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöOTPÊ¨°Êï∞
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫OTPTimes_Read
+ * √Ë ˆ  £∫ªÿ∂¡OTP¥Œ ˝
+ *  ‰»Î  £∫Œﬁ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫OTP¥Œ ˝
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 unsigned char OTPTimes_Read(void)
 {
@@ -322,12 +239,12 @@ unsigned char OTPTimes_Read(void)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöOTPSequence
- * ÊèèËø∞  ÔºöOTPÊµÅÁ®ã
- * ËæìÂÖ•  ÔºöÊó†
- * ËæìÂá∫  ÔºöÊó†
- * ËøîÂõû  ÔºöOTPÊâßË°åÁªìÊûú
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫OTPSequence
+ * √Ë ˆ  £∫OTP¡˜≥Ã
+ *  ‰»Î  £∫Œﬁ
+ *  ‰≥ˆ  £∫Œﬁ
+ * ∑µªÿ  £∫OTP÷¥––Ω·π˚
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 ErrorStatus OTPSequence(void)
 {
@@ -344,7 +261,7 @@ ErrorStatus OTPSequence(void)
 
     uc_otp_times = OTP_TIMES;
 	
-////		if(OTP_TIMES>0) //Èò≤Ê≠¢ÂÖ∂‰ªñ‰ª£Á†ÅOTP
+////		if(OTP_TIMES>0) //∑¿÷π∆‰À˚¥˙¬ÎOTP
 //		{
 //			 DriverIC_Reset();
 //			IC_Init(ET2_InitCode);
@@ -568,18 +485,17 @@ ErrorStatus OTPSequence(void)
 }
 
 /*********************************************************************************
- * ÂáΩÊï∞ÂêçÔºöICReg_chk
- * ÊèèËø∞  Ôºöcheck register setting in specified initial code
- * ËæìÂÖ•  Ôºöpointer of initial code array
- * ËæìÂá∫  Ôºö
- * ËøîÂõû  Ôºö
- * Ë∞ÉÁî®  ÔºöÂ§ñÈÉ®Ë∞ÉÁî®
+ * ∫Ø ˝√˚£∫ICReg_chk
+ * √Ë ˆ  £∫check register setting in specified initial code
+ *  ‰»Î  £∫pointer of initial code array
+ *  ‰≥ˆ  £∫
+ * ∑µªÿ  £∫
+ * µ˜”√  £∫Õ‚≤øµ˜”√
  */
 ErrorStatus ICReg_chk(uint16_t * initCode)
 {
     uint16_t * p =  initCode;
-    uint8_t cmd_1, cmd_2;
-//		uint8_t cmd_3;
+    uint8_t cmd_1, cmd_2, cmd_3;
     uint8_t data_1, data_2, data_3;
     uint8_t rdBuf[1];
     uint8_t initEnd = 0;
@@ -599,7 +515,7 @@ ErrorStatus ICReg_chk(uint16_t * initCode)
         {
             cmd_2 = (*p) >> 8;
             data_2 = (*p++);
-//            cmd_3 = (*p) >> 8;
+            cmd_3 = (*p) >> 8;
             data_3 = (*p++);
 
             if ((data_1 == 0xBF) && (cmd_2 == 0x2))
@@ -635,4 +551,90 @@ ErrorStatus ICReg_chk(uint16_t * initCode)
     {
         return SUCCESS;
     }
+}
+
+
+/*********************************************************************************
+ * ∫Ø ˝√˚£∫ID_OTP
+ * √Ë ˆ  £∫//---CH1 OTP Color ID , White_Lv ID , Project ID----//
+ *  ‰»Î  £∫/
+ *  ‰≥ˆ  £∫
+ * ∑µªÿ  £∫
+ * µ˜”√  £∫Õ‚≤øµ˜”√
+ */
+void ID_OTP()
+{
+	 uint8_t   uc_buf[1];
+	 uint16_t  a,buf;	
+		
+	//--CH1 Color ID 
+		SendPage(0x20);
+		uc_buf[0]=ID_COLOR;//
+		MIPI_DCS_Write((PORT0 | PORT1), 0x44, 1, uc_buf);
+	
+	//--CH1 Project ID
+	//--DP082---JHSN771100-----TL065FVXF01-00/TL065FVXF06-00/TL065FVXF07-00/TL065FVXF08-00
+	//--DP102---JACK771100-----TL065FVXF02-00/TL065FVXF03-00/TL065FVXF04-00/TL065FVXF05-00
+		SendPage(0x20);
+		uc_buf[0]=ID_PJ1;//		
+		MIPI_DCS_Write((PORT0 | PORT1), 0x23, 1, uc_buf);
+	
+		uc_buf[0]=ID_PJ2;//
+		MIPI_DCS_Write((PORT0 | PORT1), 0x24, 1, uc_buf);
+	
+		uc_buf[0]=ID_PJ3;//
+		MIPI_DCS_Write((PORT0 | PORT1), 0x25, 1, uc_buf);
+
+		uc_buf[0]=ID_PJ4;//
+		MIPI_DCS_Write((PORT0 | PORT1), 0x26, 1, uc_buf);
+
+		uc_buf[0]=ID_PJ5;//
+		MIPI_DCS_Write((PORT0 | PORT1), 0x27, 1, uc_buf);
+		
+		uc_buf[0]=ID_PJ6;//
+		MIPI_DCS_Write((PORT0 | PORT1), 0x28, 1, uc_buf);
+		
+		uc_buf[0]=ID_PJ7;//
+		MIPI_DCS_Write((PORT0 | PORT1), 0x46, 1, uc_buf);		
+	
+
+	//CH1 White_Lv ID 
+	//--Lv<380: ---NG,
+	//--Lv=380: ---0000,0001;
+	//--Lv=381~507: ---Lv-380£ª0000,0001--0111,1111;
+	//--Lv=508~634: ---Lv-379£ª 1000,0001--1111,1111;
+	//--Lv>634: ---1111,1111;
+		if (GAMMAEXPERT == SET)
+		{
+			a=(uint16_t)(ID3 * 1.5 + 308);
+			printf("white_Lv = %d\r\n",a);
+			 if(a==380)
+				uc_buf[0]=1;
+			 else if((a>=381)&&(a<=507))
+				uc_buf[0]=a-380;
+			 else if((a>=508)&&(a<=634))
+				uc_buf[0]=a-379;
+			 else if(a>634)
+				uc_buf[0]=255;
+
+			SendPage(0x20);
+			MIPI_DCS_Write((PORT0 | PORT1), 0x45, 1, uc_buf);	
+		}
+		else
+		{
+			a=(uint16_t)(chroma_Lv);
+			printf("white_Lv = %d\r\n",a);
+			 if(a==380)
+				uc_buf[0]=1;
+			 else if((a>=381)&&(a<=507))
+				uc_buf[0]=a-380;
+				else if((a>=508)&&(a<=634))
+				uc_buf[0]=a-379;
+			 else if(a>634)
+				uc_buf[0]=255;
+			
+			SendPage(0x20);
+			MIPI_DCS_Write((PORT0 | PORT1), 0x45, 1, uc_buf);	
+		}
+		
 }

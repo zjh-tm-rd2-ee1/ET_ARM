@@ -19,7 +19,7 @@ uint8_t CTPStateTemp  = CTP_IDLE;
 uint8_t TOTAL_DIS_NUM = 30;
 uint8_t DIS_NUM = 0;
 uint8_t DIS_NUM_OLD = 0xFF;
-
+LED_TypeDef LED_TEMP=RED;
 FlagStatus DIS_AUTO = RESET; //pattern auto switch is disable default.
 
 /*********************************************************************************
@@ -57,7 +57,7 @@ void KEY_Config(void)
 * Call: external
 * modify by ywq ,2017-1-25 17:43
 */
-uint8_t KEY_GetState(void)
+uint8_t KEY_GetState(void)//°´¼ü·À¶¶
 {
 	static uint8_t debounce = 0;
 	static uint8_t key_old = KEY_IDLE;
@@ -126,11 +126,27 @@ void KeyProc(void)
 			}
 			break;
 		case (KEY_UP): 
+			
+			LED_OFF(LED_TEMP);
+			if(LED_TEMP>=1){
+				LED_TEMP--;
+			}
+			else{
+				LED_TEMP=2;
+			}
+			LED_ON(LED_TEMP);
+			
 			if (DIS_AUTO) break;
 			(DIS_NUM >= (TOTAL_DIS_NUM - 1)) ? (DIS_NUM = 0) : DIS_NUM++;
 			printf("TOTAL_DIS_NUM = %d, DIS_NUM = %d\r\n", TOTAL_DIS_NUM, DIS_NUM); 
 			break;
 		case (KEY_DOWN):
+			
+			LED_OFF(LED_TEMP);
+			LED_TEMP++;
+			if(LED_TEMP>=3)LED_TEMP=0;
+			LED_ON(LED_TEMP);
+
 			if (DIS_AUTO) break;
 			(DIS_NUM == 0) ? (DIS_NUM = TOTAL_DIS_NUM - 1) : DIS_NUM--;
 			printf("TOTAL_DIS_NUM = %d, DIS_NUM = %d\r\n", TOTAL_DIS_NUM, DIS_NUM); 
@@ -278,17 +294,11 @@ void CTPProc(void)
 			break;		
 		case (1): 	
 			printf("\r\nCTPState:CTP fail.");
-			DriverIC_Reset();
-			IC_Init(ET1_InitCode);	
-			LCD_LitSquence();
 			FPGA_DisPattern(0, 255, 0, 0);	//red pattern indicate CTP fail
 //		  GPIO_ResetBits(CTP_START_GPIO_PORT, CTP_START_PIN); //Feedback to CTP kit
 			break;
 		case (2):
-			printf("\r\nCTPState:CTP pass.");		
-			DriverIC_Reset();
-			IC_Init(ET1_InitCode);	
-			LCD_LitSquence();		
+			printf("\r\nCTPState:CTP pass.");				
 			FPGA_DisPattern(0, 0, 255, 0); //green pattern indicate CTP pass	
 //			GPIO_ResetBits(CTP_START_GPIO_PORT, CTP_START_PIN); //Feedback to CTP kit
 			break;
@@ -303,7 +313,9 @@ void CTPProc(void)
 			break;
 		case (4):
 			printf("\r\nCTPState:sleep out.");
-			LCD_LitSquence();	
+			LCD_SleepOut();
+			LCD_HSMode();				
+		  LCD_VideoMode_ON();
 			GPIO_SetBits(CTP_ACK_GPIO_PORT, CTP_ACK_PIN);
 			Delay_ms(150);	//Feedback to CTP kit	
 			GPIO_ResetBits(CTP_ACK_GPIO_PORT, CTP_ACK_PIN); 				

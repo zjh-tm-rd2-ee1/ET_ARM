@@ -12,7 +12,7 @@
 //	TEST_MODE_DEMO
 //	TEST_MODE_CTP
 //	TEST_MODE_DEBUG
-uint8_t TEST_MODE = TEST_MODE_ET1;
+uint8_t TEST_MODE = TEST_MODE_ET2;
 /*********************************************************************************
 * Function: main
 * Description: main
@@ -25,13 +25,13 @@ int main(void)
 {
 	/* STM32 initial */
 	Board_Init(); 
-	TEST_MODE_Init();//脪貌脦陋SDCARD脛拢脢陆脙禄脫脨潞锚露篓脪氓拢卢脣霉脪脭脮芒脌茂脙忙碌脛鲁脤脨貌露录脙禄脫脨卤脿脪毛鲁枚脌麓
+	TEST_MODE_Init();//因为SDCARD模式没有宏定义，所以这里面的程序都没有编译出来
 	Delay_ms(200);	// wait for FPGA ready!
 	LED_ON(BLUE);
 
 	/* Initial */		
 	FPGA_Initial();
-	if (!auto_line)//脢脰露炉脧脽脰麓脨脨脪脭脧脗鲁脤脨貌
+	if (!auto_line)//手动线执行以下程序
 	{
 		
 		//for(int i=0;i<80;i++){
@@ -41,7 +41,7 @@ int main(void)
 		//}
 		
 		/* CTP Sensor detect */
-		if (TEST_MODE == TEST_MODE_CTP)//CTP脮戮碌茫
+		if (TEST_MODE == TEST_MODE_CTP)//CTP站点
 		{	
 			FPGA_Info_Visible(INFO_VERSION | INFO_PROJECT_NO);
 			FPGA_DisPattern(83, 127, 127, 127);	//waku+black crosstalk
@@ -93,7 +93,7 @@ int main(void)
 			else if (FPGA_NG == SET) FPGA_Info_Set((uint8_t *)"FPGA ERROR");				
 		}
 	} //end of 	if (!auto_line)
-	else//脳脭露炉脧脽
+	else//自动线
 	{
 		PIC_Load_BMP(1); 
 		DIS_NUM_OLD = DIS_NUM; //Auto AOI not to enter test mode switch
@@ -117,7 +117,7 @@ int main(void)
 	printf("\r\n===== System on time elapsed: %.3f(second)\r\n", TIMESTAMP);	
   printf("\r\n*#*#SYSTEM OK#*#*\r\n");
 	
-	while (1)//脰梅脪陋脩颅禄路脰麓脨脨鲁脤脨貌
+	while (1)//主要循环执行程序
 	{	
 		Test_Mode_Switch();
 		Connect_Check();

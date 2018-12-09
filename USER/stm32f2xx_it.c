@@ -134,7 +134,7 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-  Timer_Decrement();
+  Timer_Decrement();//延时函数所用的减量计数器被SysTick的中断服务函数所调用
 }
 
 /******************************************************************************/

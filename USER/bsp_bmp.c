@@ -13,8 +13,9 @@ FRESULT bmpres;
 #define GETG_FROM_RGB16(RGB565)  ((unsigned char)((((unsigned short int )(RGB565 & 0x7ff)) >> 5)<< 2)) 	// G
 #define GETB_FROM_RGB16(RGB565)  ((unsigned char)((((unsigned short int )(RGB565 & 0x1f)) << 3)))       	// B
 	
-#define Bank1_LCD_D				((u32)0x6C000000) //Disp Data ADDR      
-#define FPGA_FSMC_WR_Data(val)	((*(__IO u16 *) (Bank1_LCD_D)) = ((u16)(val))) //write data to GRAM
+#define Bank1_LCD_D				((u32)0x6C000000) //Disp Data ADDR  //没看懂，后面在哪里被调用？    
+#define FPGA_FSMC_WR_Data(val)	((*(__IO u16 *) (Bank1_LCD_D)) = ((u16)(val))) //write data to GRAM 把val变量赋值给Bank1_LCD_D地址对应的变量，估计Bank1_LCD_D之后会被其它程序调用读取
+//这里用到FSMC把图片数据写入到FPGA里，FPGA再把图片数据写到SDRAM里
 
 /*********************************************************************************
 * Function: showBmpHead
@@ -127,7 +128,7 @@ ErrorStatus Lcd_Load_bmp(LONG Bmp_Width, LONG Bmp_Hight, unsigned char *Pic_Name
 #ifdef SINGLE_PORT	
 	if ((width != Bmp_Width) || (height != Bmp_Hight)) //picture resolution
 	{
-		printf("Picture is not %d RGB x %d bmp pitcture.\r\n", Bmp_Width, Bmp_Hight);
+		printf("Picture is not %ld RGB x %ld bmp pitcture.\r\n", Bmp_Width, Bmp_Hight);
 		f_close(&bmpfsrc);
 		return ERROR;
 	}
@@ -158,7 +159,7 @@ ErrorStatus Lcd_Load_bmp(LONG Bmp_Width, LONG Bmp_Hight, unsigned char *Pic_Name
 		for (width = 0; width < num; width += 3)
 		{
 			FPGA_FSMC_WR_Data((WORD)((pColorData[num + width + 2] << 8) | (pColorData[num + width + 1])));
-			FPGA_FSMC_WR_Data(((WORD)(pColorData[num + width] << 8) | (pColorData[width + 2])));
+			FPGA_FSMC_WR_Data((WORD)((pColorData[num + width] << 8) | (pColorData[width + 2])));
 			FPGA_FSMC_WR_Data((WORD)((pColorData[width + 1] << 8) | (pColorData[width])));
 		}
 #endif
@@ -170,14 +171,14 @@ ErrorStatus Lcd_Load_bmp(LONG Bmp_Width, LONG Bmp_Hight, unsigned char *Pic_Name
 	//1 FHD picture size: 1080 * 1920 * 3 = 6220800 bytes
 	//SDRAM: data bus width = 16 bits = 2 bytes
 	//1 full page burst: 512 * 2 bytes = 1024 bytes
-	//We use 3 SDRAM to store pictures, so 1 burst contains:   bytes
+	//We use 2 SDRAM to store pictures, so 1 burst contains:   bytes
 	//6220800 / 2048 = 3037.5
 	//For each SDRAM, need 3037 and a half bursts. 
 	//Need to transfer: 256(half burst) * 2 (bytes) * 2(SDRAM chips) = 1024 bytes
 	//****************************************************************************
 #ifdef SINGLE_PORT	
-	num = (3072 - (Bmp_Width * Bmp_Hight * 3 % 3072)) / 2;
-	if (num == 1536) //刚好整数个burst
+	num = (2048 - (Bmp_Width * Bmp_Hight * 3 % 2048)) / 2;
+	if (num == 1024) //刚好整数个burst
 	{
 		num = 0;
 	}
@@ -221,9 +222,9 @@ ErrorStatus PIC_Load_BMP(uint8_t picNum)
 
 #ifdef SINGLE_PORT	
 	{	
-		sdramBurstNum = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 3 + 0.99);  //向上取整
-		picSize = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 1024 / 3 + 0.99);	  //向上取整	
-		sdramlastBurstUse	= (FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3) % 3072 / 6;
+		sdramBurstNum = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 2 + 0.99);  //向上取整
+		picSize = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 1024 + 0.99);	  //向上取整	
+		sdramlastBurstUse	= (FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3) % 2048 / 4;
 	}
 #else
 	{
@@ -248,7 +249,7 @@ ErrorStatus PIC_Load_BMP(uint8_t picNum)
 	{
 		OTP_TIMES = picNum - i;
 		FPGA_Info_Visible(INFO_STR | INFO_OTPTIMES);
-		sprintf((char*)picName, "%d%s", i, ".bmp");
+		sprintf((char*)picName, "%d%s", i, ".bmp");//居然是靠文件名拼接对应起来的！！！
 		printf("%s\r\n", picName);
 #ifdef CMD_MODE
 		FPGA_DisPattern(0, i, 1, 1); //display information
@@ -286,10 +287,10 @@ ErrorStatus PIC_Load_BMP_ET(uint8_t * picName)
 	uint16_t sdramlastBurstUse;
 
 #ifdef SINGLE_PORT	
-	{	
-		sdramBurstNum = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 3 + 0.99);  //向上取整
-		picSize = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 1024 / 3 + 0.99);	  //向上取整	
-		sdramlastBurstUse	= (FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3) % 3072 / 6;
+	{
+		sdramBurstNum = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 2 + 0.99);  //向上取整
+		picSize = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 1024 + 0.99);	  //向上取整	
+		sdramlastBurstUse	= (FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3) % 2048 / 4;		
 	}
 #else
 	{
@@ -298,13 +299,9 @@ ErrorStatus PIC_Load_BMP_ET(uint8_t * picName)
 		sdramlastBurstUse	= (FPGA_porchPara.HACT * 2 * FPGA_porchPara.VACT * 3) % 3072 / 6;
 	} 
 #endif
-	if (sdramlastBurstUse == 0) //刚好整数个burst
-	{
-		sdramlastBurstUse = 512;
-	}
 	//para1: send enable
 	//para2: how many pictures to be sent		 
-	//para3: how mayn SDRAM bursts need to store 1 picture: (HSUM * VSUM * 24) / (512 * 16)	/ SDRAM_NUM
+	//para3: how many SDRAM bursts need to store 1 picture: (HSUM * VSUM * 24) / (512 * 16)	/ SDRAM_NUM
 	//para4: SDRAM size reserved for 1 picture: (HSUM * VSUM * 3) / 1024 / 1024 / SDRAM_NUM	 (uint: MB)
 	//para5:  how many address to use in last SDRAM burst for 1 picture : (2048 - HSUM * VSUM * 3 % 2048) / 4 (4 for single port)
 	FPGA_PIC_WR_CFG(1, 1, sdramBurstNum, picSize, sdramlastBurstUse);
@@ -318,44 +315,6 @@ ErrorStatus PIC_Load_BMP_ET(uint8_t * picName)
 	}
 	Pic_Load = SUCCESS;
 	Pic_Load_Finish = SET;
-	return SUCCESS;
-}
-
-ErrorStatus PIC_Load_BMP_DPT(uint8_t * picName)
-{
-	uint8_t picSize;
-	uint16_t sdramBurstNum;
-	uint16_t sdramlastBurstUse;
-
-#ifdef SINGLE_PORT	
-	{	
-		sdramBurstNum = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 3 + 0.99);  //向上取整
-		picSize = ((FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3.0) / 1024 / 1024 / 3 + 0.99);	  //向上取整	
-		sdramlastBurstUse	= (FPGA_porchPara.HACT * FPGA_porchPara.VACT * 3) % 3072 / 6;
-	}
-#else
-	{
-		sdramBurstNum = ((FPGA_porchPara.HACT * 2 * FPGA_porchPara.VACT * 3.0) / 1024 / 3 + 0.99);  //向上取整
-		picSize = ((FPGA_porchPara.HACT * 2 * FPGA_porchPara.VACT * 3.0) / 1024 / 1024 / 3 + 0.99);	  //向上取整
-		sdramlastBurstUse	= (FPGA_porchPara.HACT * 2 * FPGA_porchPara.VACT * 3) % 3072 / 6;
-	} 
-#endif
-	if (sdramlastBurstUse == 0) //刚好整数个burst
-	{
-		sdramlastBurstUse = 512;
-	}
-	//para1: send enable
-	//para2: how many pictures to be sent		 
-	//para3: how mayn SDRAM bursts need to store 1 picture: (HSUM * VSUM * 24) / (512 * 16)	/ SDRAM_NUM
-	//para4: SDRAM size reserved for 1 picture: (HSUM * VSUM * 3) / 1024 / 1024 / SDRAM_NUM	 (uint: MB)
-	//para5:  how many address to use in last SDRAM burst for 1 picture : (2048 - HSUM * VSUM * 3 % 2048) / 4 (4 for single port)
-	FPGA_PIC_WR_CFG(1, 1, sdramBurstNum, picSize, sdramlastBurstUse);
-	if (Lcd_Load_bmp(FPGA_porchPara.HACT, FPGA_porchPara.VACT, picName) == ERROR)
-	{
-//		FPGA_Info_Set((uint8_t *)"LOAD PIC FAIL.");
-//		FPGA_Info_Visible(INFO_STR);
-		return ERROR;
-	}
 	return SUCCESS;
 }
 

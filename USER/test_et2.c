@@ -110,9 +110,9 @@ void Test_ET2(void){
 			Delay_ms(300);
 			break;
 		case (18): 	
-			FPGA_DisPattern(137, 0, 0, 0); 	//Îª
-			Delay_ms(300);					//Îª
-			break;							//»
+			FPGA_DisPattern(137, 0, 0, 0); 	//Ϊ
+			Delay_ms(300);					//Ϊ
+			break;							//�
 		case (19): 							//
 			FPGA_DisPattern(0, 0, 0, 0);
 			FPGA_Info_Visible(INFO_NONE);
@@ -216,7 +216,7 @@ void Test_ET2(void){
 ////			FPGA_DisPattern(0, 0, 0, 255); 	//blue
 ////			break;
 ////		case (16): 
-////			FPGA_DisPattern(17, 0, 0, 0); 	//»Ò½×bar
+////			FPGA_DisPattern(17, 0, 0, 0); 	//�ҽ�bar
 ////			break;
 ////		case (17): 
 ////			FPGA_DisPattern(7, 127, 0, 0); 	//crosstalk

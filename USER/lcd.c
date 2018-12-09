@@ -41,26 +41,26 @@ void LCD_RST_Config(void)
 	 Delay_ms(150);
  }
 
-///*********************************************************************************
-//* Function: LCD_SoftReset
-//* Description: DDIC soft reset
-//* Input: none
-//* Output: none
-//* Return: none
-//* Call: external
-//*/
-//void LCD_SoftReset(void)
-//{
-//	printf("\r\nDriver IC solfware reset...\r\n");
-//	SSD_B7 |= SSD_CFGR_DCS;
-//	SSD_B7 &= ~SSD_CFGR_REN;
-//	WriteSSDReg((PORT0 | PORT1), SSD_CFGR, SSD_B7);
-//	printf("SSD_B7 = 0x%04x\r\n", SSD_B7);
+/*********************************************************************************
+* Function: LCD_SoftReset
+* Description: DDIC soft reset
+* Input: none
+* Output: none
+* Return: none
+* Call: external
+*/
+void LCD_SoftReset(void)
+{
+	printf("\r\nDriver IC solfware reset...\r\n");
+	SSD_B7 |= SSD_CFGR_DCS;
+	SSD_B7 &= ~SSD_CFGR_REN;
+	WriteSSDReg((PORT0 | PORT1), SSD_CFGR, SSD_B7);
+	printf("SSD_B7 = 0x%04x\r\n", SSD_B7);
 
-//	WriteSSDReg((PORT0 | PORT1), 0xBC, 0x0001);
-//	WriteSSDReg((PORT0 | PORT1), 0xBF, 0x0001);
-//	Delay_ms(150);	 //delay more than 120ms
-//}
+	WriteSSDReg((PORT0 | PORT1), 0xBC, 0x0001);
+	WriteSSDReg((PORT0 | PORT1), 0xBF, 0x0001);
+	Delay_ms(150);	 //delay more than 120ms
+}
 
 /*********************************************************************************
 * Function: LCD_SleepIn
@@ -72,6 +72,7 @@ void LCD_RST_Config(void)
 */
 void LCD_SleepIn(void)
 {	
+	SendPage(0x10);
 	printf("\r\nDriver IC display off then sleep in...\r\n");
 	SSD_B7 |= SSD_CFGR_DCS;
 	SSD_B7 &= ~SSD_CFGR_REN;
@@ -129,6 +130,7 @@ void LCD_SleepIn(void)
 */
 void LCD_SleepOut(void)
 {
+	SendPage(0x10);
 	printf("\r\nDriver IC display on then sleep out...\r\n");
 	SSD_B7 |= SSD_CFGR_DCS;
 	SSD_B7 &= ~SSD_CFGR_REN;
@@ -151,6 +153,7 @@ void LCD_SleepOut(void)
 */
 void LCD_DisplayOff(void)
 {
+	SendPage(0x10);
 	printf("\r\nDriver IC display off...\r\n");
 	SSD_B7 |= SSD_CFGR_DCS;
 	SSD_B7 &= ~SSD_CFGR_REN;
@@ -159,7 +162,7 @@ void LCD_DisplayOff(void)
 
 	WriteSSDReg((PORT0 | PORT1), 0xBC, 0x0001);
 	WriteSSDReg((PORT0 | PORT1), 0xBF, 0x0028);
-	Delay_ms(10); //150 -> 10 @2018 V2P4
+	Delay_ms(150);
 }
 
 /*********************************************************************************
@@ -172,6 +175,7 @@ void LCD_DisplayOff(void)
 */
 void LCD_DisplayOn(void)
 {
+	SendPage(0x10);
 	printf("\r\nDriver IC display on...\r\n");
 	SSD_B7 |= SSD_CFGR_DCS;
 	SSD_B7 &= ~SSD_CFGR_REN;
@@ -180,7 +184,7 @@ void LCD_DisplayOn(void)
 
 	WriteSSDReg((PORT0 | PORT1), 0xBC, 0x0001);
 	WriteSSDReg((PORT0 | PORT1), 0xBF, 0x0029);
-	Delay_ms(10); //150 -> 10 @2018 V2P4
+	Delay_ms(150);
 }
 
 /*********************************************************************************
@@ -295,7 +299,7 @@ void MIPI_SleepMode_OFF(void)
 */
 void LCD_LitSquence(void)
 {
-	LCD_PWM(0xFFF);
+	LCD_PWM(0x0FFF);
 	LCD_SleepOut();
 	LCD_HSMode();	
 #ifdef CMD_MODE
@@ -341,6 +345,7 @@ void LCD_PWM(uint16_t data)
 void LEDA_DIM(void) //1mA
 {
 	LCD_PWM(0x000D); //8bit
+	
 //	LCD_PWM(0x00CC); //12bit
 }
 
@@ -467,10 +472,13 @@ void LCM_Init(void)
 		printf("*#*#4:0x%04X#*#*\r\n", vcom_best);
 		printf("*#*#6:%d#*#*\r\n", OTP_TIMES);
 		printf("\r\n===== OTP status check time elapsed: %.3f(second)\r\n", TIMESTAMP - debug);
-
+		
 		/* ID check */	
-		IDCheck();
+		if((TEST_MODE != TEST_MODE_ET1)){
+			//IDCheck();
+		}
  	}
+	
 	
 	/* discharge */
 	LCD_LitSquence();
@@ -567,16 +575,16 @@ void LCM_Reset()
 			LED_ON(RED);
 		}
 	}
-	else
-	{
-		if (Program_FW() == ERROR) 
-		{
-			FW_NG = SET;
-			FPGA_Info_Visible(INFO_STR);
-			FPGA_Info_Set((uint8_t *)"FW ERROR");	
-			FPGA_DisPattern(114, 0, 0, 0);
-			LED_ON(RED);
-		}
-	}
+//	else
+//	{
+//		if (Program_FW() == ERROR) 
+//		{
+//			FW_NG = SET;
+//			FPGA_Info_Visible(INFO_STR);
+//			FPGA_Info_Set((uint8_t *)"FW ERROR");	
+//			FPGA_DisPattern(114, 0, 0, 0);
+//			LED_ON(RED);
+//		}
+//	}
 #endif
 }

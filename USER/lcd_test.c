@@ -8,7 +8,6 @@ FlagStatus PWM_NG = RESET;
 FlagStatus ID_NG = RESET;
 FlagStatus FW_NG = RESET;
 FlagStatus FPGA_NG = RESET;
-FlagStatus OSC_TRIM_NG = RESET;
 
 uint16_t delay_cnt;
 uint16_t PWM_detect_cnt;
@@ -27,6 +26,11 @@ float SPEC_MAX_VSN	=	100.0;								//mA
 
 float SPEC_LEDA_MIN = SPEC_MIN_LEDA_NORMAL;			  //mA
 float SPEC_LEDA_MAX	= SPEC_MAX_LEDA_NORMAL;				//mA
+
+unsigned char ID_ColorCheck;
+unsigned char ID_LVCheck;
+unsigned char ID_PJ2Check;
+
 
 /********************************************************************************* 
 * Function: TEST_Config_ON
@@ -131,9 +135,6 @@ void TEST_Config_CTP(void)
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;       
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;	
 
-	GPIO_InitStructure.GPIO_Pin = TEST15_PIN; //CTP2
-	GPIO_Init(TEST15_GPIO_PORT, &GPIO_InitStructure);
-	
 	GPIO_InitStructure.GPIO_Pin = TEST18_PIN; //CTP1
 	GPIO_Init(TEST18_GPIO_PORT, &GPIO_InitStructure);
 	
@@ -593,6 +594,49 @@ void IDCheck(void)
 //		FPGA_Info_Set((uint8_t *)"TL052VVXS06-00");	//the correct project number of the panel		 			
 //	}
 
+
+	//---ET2 ID check----20180428-wwp---//
+	//Color ID Check
+  SendPage(0x10);
+	MIPI_DCS_Read(MAIN_PORT, 0xDA, 1, &ID_ColorCheck);
+	printf("\r\n Color ID is 0x%02X\r\n\r\n", ID_ColorCheck);	
+	
+	//White_LV ID Check
+  SendPage(0x10);
+	MIPI_DCS_Read(MAIN_PORT, 0xDB, 1, &ID_LVCheck);
+	printf("\r\n White_LV ID is 0x%02X\r\n\r\n", ID_LVCheck);	
+	
+	//Project ID Check
+  SendPage(0x20);
+	MIPI_DCS_Read(MAIN_PORT, 0x24, 1, &ID_PJ2Check);
+	printf("\r\n Project ID is 0x%02X\r\n\r\n", ID_PJ2Check);	
+	
+	if (ID_ColorCheck != ID_COLOR)
+		{
+				FPGA_DisPattern(86, 0, 0, 0);
+				FPGA_Info_Set((uint8_t *)"COLOR_ID_NG");
+				ID_NG = SET;
+		}
+	else if( (ID_LVCheck == 0x00) || (ID_LVCheck == 0x80) )
+		{
+				FPGA_DisPattern(86, 0, 0, 0);
+				FPGA_Info_Set((uint8_t *)"LV_ID_NG");
+				ID_NG = SET;
+		}
+	else if(ID_PJ2Check != ID_PJ2)
+		{
+				FPGA_DisPattern(86, 0, 0, 0);
+				FPGA_Info_Set((uint8_t *)"PROJECT_ID_NG");
+				ID_NG = SET;
+		}
+	else 
+		{
+			ID_NG = RESET;
+		}
+		
+	SendPage(0x10);
+	//---ET2 ID check----20180428-wwp---//
+		
 	if (ID_NG == SET)	printf("*#*#ID NG#*#*\r\n");
 	else	printf("*#*#ID OK#*#*\r\n");
 }
@@ -630,7 +674,7 @@ void AOI_Current_Check_Normal()
 		{
 			printf("\r\n*#*#CURRENT_NG:VSN!#*#*\r\n");
 		}
-		else if ((TEST_MODE != TEST_MODE_ET1 && TEST_MODE != TEST_MODE_CTP) && (I_LEDA < SPEC_LEDA_MIN || I_LEDA > SPEC_LEDA_MAX))
+		else if (TEST_MODE != TEST_MODE_ET1 && I_LEDA < SPEC_LEDA_MIN || I_LEDA > SPEC_LEDA_MAX)
 		{
 			printf("\r\n*#*#CURRENT_NG:LEDA!#*#*\r\n");
 		}
@@ -698,7 +742,6 @@ void AOI_Current_Check(void)
 	/* normal pattern current check */
 	FPGA_DisPattern(0, 255, 0, 0); //red
 	Meas_Current_Normal();
-{	
 	if (I_IOVCC == 0.0 && I_VSP == 0.0 && I_VSN == 0.0 && I_LEDA == 0.0)
 	{
 		printf("\r\n*#*#CURRENT_NG:METER NO ACK!#*#*\r\n");
@@ -712,10 +755,9 @@ void AOI_Current_Check(void)
 		printf("\r\n*#*#CURRENT_NG#*#*\r\n");
 		return;
 	}
-}	
 	FPGA_DisPattern(0, 255, 255, 255); //white
 	Meas_Current_Normal();
-{	
+
 	if (I_IOVCC == 0.0 && I_VSP == 0.0 && I_VSN == 0.0 && I_LEDA == 0.0)
 	{
 		printf("\r\n*#*#CURRENT_NG:METER NO ACK!#*#*\r\n");
@@ -729,14 +771,12 @@ void AOI_Current_Check(void)
 		printf("\r\n*#*#CURRENT_NG#*#*\r\n");
 		return;
 	}
-}	
 	
 	/* low current white check */
 	LEDA_DIM();
 	FPGA_DisPattern(0, 255, 255, 255);  							
 	Delay_ms(100);	//should wait until BLU stable
 	Meas_Current_Normal();	
-{	
 	if (I_IOVCC == 0.0 && I_VSP == 0.0 && I_VSN == 0.0 && I_LEDA == 0.0)
 	{
 		printf("\r\n*#*#CURRENT_NG:METER NO ACK!#*#*\r\n");
@@ -747,7 +787,6 @@ void AOI_Current_Check(void)
 		printf("\r\n*#*#CURRENT_NG#*#*\r\n");
 		return;
 	}
-}
 	
 	/* sleep current check */
 	LCD_PWM(0x0000); 	
@@ -756,7 +795,6 @@ void AOI_Current_Check(void)
 	LCD_LPMode();
 	MIPI_SleepMode_ON();	
 	Meas_Current_Sleep();
-{	
 	if (I_IOVCC == 0.0 && I_VSP == 0.0 && I_VSN == 0.0 && I_LEDA == 0.0)
 	{
 		printf("\r\n*#*#CURRENT_NG:METER NO ACK!#*#*\r\n");
@@ -771,7 +809,7 @@ void AOI_Current_Check(void)
 	}
 	MIPI_SleepMode_OFF();
 	LCD_LitSquence();
-}	
+
 	
 	/* current check ok */
 	printf("\r\n*#*#CURRENT_OK#*#*\r\n");
@@ -799,24 +837,28 @@ void Current_Check(void)
 			FPGA_Info_Set((uint8_t *)"DISPLAY");
 			FPGA_Info_Visible(INFO_STR);
 			FPGA_DisPattern(123, 0, 0, 0); 
+			printf("\r\nIOVCC NG\r\n");
 		}
 		else if ((GPIO_ReadInputDataBit(IVSP_GPIO_PORT, IVSP_PIN) == RESET))
 		{
 			FPGA_Info_Set((uint8_t *)"DISPLAY");
 			FPGA_Info_Visible(INFO_STR);
-			FPGA_DisPattern(99, 0, 0, 0); 
+			FPGA_DisPattern(99, 0, 0, 0);
+			printf("\r\nVSP NG\r\n");			
 		}
 		else if (GPIO_ReadInputDataBit(IVSN_GPIO_PORT, IVSN_PIN) == RESET)
 		{
 			FPGA_Info_Set((uint8_t *)"DISPLAY");
 			FPGA_Info_Visible(INFO_STR);
 			FPGA_DisPattern(98, 0, 0, 0); 
-		}
-		else
-		{
-			return;
+			printf("\r\nVSN NG\r\n");
 		}
 	}
+	else{
+			printf("\r\nCC SUCCESS\r\n");
+			return;
+		}
+	
 	
 	printf("\r\nCurrent is abnormal!\r\n");
 	current_NG = SET;	
@@ -1255,7 +1297,7 @@ void ON3sec_OFF3sec(void)
 * Call: external
 */
 void Test_Mode_Switch(void)
-{
+{		
 	if (OTP_TIMES == 0 && ( 
 												TEST_MODE == TEST_MODE_ET2 || 
 												TEST_MODE == TEST_MODE_ET3 ||
@@ -1270,7 +1312,8 @@ void Test_Mode_Switch(void)
 		FPGA_DisPattern(84, 0, 0, 0);	
 		return;
 	}
-	else if (current_NG == SET || SDCard_NG == SET || TE_NG == SET || PWM_NG == SET || ID_NG == SET || FW_NG == SET || FPGA_NG == SET || OSC_TRIM_NG == SET)	
+	
+	else if (current_NG == SET || SDCard_NG == SET || TE_NG == SET || PWM_NG == SET || ID_NG == SET || FW_NG == SET || FPGA_NG == SET)	
 	{		
 		return;
 	}
@@ -1301,6 +1344,15 @@ void Test_Mode_Switch(void)
 			default: Test_DEBUG(); break;						
 		}
 #else	
+			if (!auto_line)
+		{
+			if (Flag_Test_Current && TEST_MODE != TEST_MODE_ET3)
+			{
+				Current_Check();	
+			}
+		}
+	Flag_Test_Current = SET;
+		
 		if (!auto_line) 
 		{
 			if (SD_MODE_ERROR == SET)
@@ -1315,17 +1367,10 @@ void Test_Mode_Switch(void)
 		}
 #endif
 		
-		if (!auto_line)
-		{
-			if (Flag_Test_Current && TEST_MODE != TEST_MODE_ET3 && TEST_MODE != TEST_MODE_CTP)
-			{
-				Current_Check();	
-			}
-		}
-		Flag_Test_Current = SET;
+		
 		
 		//for G6 ET OIC
-		if (DIS_NUM == 2 || DIS_NUM == 3)
+		if (DIS_NUM == 2)
 		{
 			Project_Info_Upload();
 			if (OTP_TIMES == 0)	printf("*#*#3:OTP NO#*#*\r\n"); 

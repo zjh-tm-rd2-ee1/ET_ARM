@@ -223,6 +223,7 @@ void IC_Init(uint16_t * initCode)
 	{
 		case (PORT0): GPIO_ResetBits(SSD2828_SPI_nCS0_GPIO_PORT, SSD2828_SPI_nCS0_PIN); break;
 		case (PORT1): GPIO_ResetBits(SSD2828_SPI_nCS1_GPIO_PORT, SSD2828_SPI_nCS1_PIN);break;
+		//两个都有
 		default: GPIO_ResetBits(SSD2828_SPI_nCS0_GPIO_PORT, SSD2828_SPI_nCS0_PIN); 
 						GPIO_ResetBits(SSD2828_SPI_nCS1_GPIO_PORT, SSD2828_SPI_nCS1_PIN); break;
 	}
