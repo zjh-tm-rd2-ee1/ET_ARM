@@ -1,4 +1,5 @@
 #include "include.h"
+#define FW_UPDATE_SPI_CHECK
 /*********************************************************************************
  * Interface definition for all IC, not to change!
  */
@@ -56,7 +57,6 @@ typedef enum {
 	RESET_STATE_MAX  = 0xAF
 } RST_COMPLETE_STATE;
 
-  
 #define SPI_WRITE_MASK(a)	(a | 0x80)
 #define SPI_READ_MASK(a)	(a & 0x7F)
 #define BLD_CRC_EN(a)	    (a | 0x80)
@@ -1024,85 +1024,76 @@ TCH_SPI_WordRead(R_ILM_CHECKSUM_ADDR, len+1 , fwbuf);
 	return ret;
 }
 
-ErrorStatus Program_FW(void)//Download_Firmware_HW_CRC(void)//Download_Firmware_HW_CRC
-{
-ErrorStatus ret =SUCCESS;
-#ifdef NO_FLASH_MODE
-uint8_t retry = 0;
-uint8_t buf[1];
-	
-TCH_SPI_Config();//spi_config
-if(SD_FW_OPEN()==ERROR)// open fw file
-return ERROR;
-/* Parse Firmware header  Process */
-if(f_lseek(&fwfile,0x00)==FR_OK)
-SD_FW_Read(FWContent,256); //read FW header 256BYTE
-ret =nvt_bin_header_parser(FWContent,256);// parse bin file headre
-if (!ret) 
-{
- printf("\r\n parse bin file headre failed.");
-}
- while (1) 
- {
-  GPIO_SetBits(TEST24_GPIO_PORT, TEST24_PIN);// TP_RST
-  Delay_us(5);	//wait tRSTA2BRST after TP_RST
-  nvt_bootloader_reset();
-  /* Start Write Firmware Process */
-   ret = Write_Partition();// send fw to sram
-  if (!ret) 
-  {
-  	printf("\r\n Write_Firmware failed.");
-  	goto fail;
-  }
-  
-  /* clear fw reset status */
-	buf[0]=0xAA;
-//	while(1){
-  TCH_SPI_WordWrite(EVENT_MAP_RESET_COMPLETE,1, 0x00);
-//	TCH_SPI_WordRead(EVENT_MAP_RESET_COMPLETE,1, buf);
-//	}
-	
-   ret = Check_HW_CRC(0);	//Check overlay & Info (also name Check DMA CRC)
-
-  if (!ret) 
-  {
-  	printf("\r\n check hw crc failed, retry=%d\n", retry);
-  	goto fail;
-  }
-  /* Set BLD_CRC_EN Bit to 1*/
-   nvt_bld_crc_en();
-  /* Set Boot Ready Bit */
-  nvt_boot_ready();
-  
-  ret = Check_HW_CRC(1);	//Check ILM & DLM
-  if (!ret) 
-  {
-  	printf("\r\n check hw crc failed, retry=%d\n", retry);
-  	goto fail;
-  } 
-  ret = nvt_check_fw_reset_state(RESET_STATE_INIT);
-  if (!ret) {
-  	printf("\r\n nvt_check_fw_reset_state failed.\n");
-  	goto fail;
-  }
-  else
-  { 
-  	printf("\r\n nvt_check_fw_reset_state SUCCESS.\n");
-  	break;
-  }
-  
-fail:
-  retry++;
+ErrorStatus Program_FW(void){
+	ErrorStatus ret =SUCCESS;
+	#ifdef NO_FLASH_MODE
+	uint8_t retry = 0;
+	uint8_t buf[1];
+	TCH_SPI_Config();//spi_config
+	if(SD_FW_OPEN()==ERROR)// open fw file
+		return ERROR;
+	/* Parse Firmware header  Process */
+	if(f_lseek(&fwfile,0x00)==FR_OK)
+		SD_FW_Read(FWContent,256); //read FW header 256BYTE
+	ret =nvt_bin_header_parser(FWContent,256);// parse bin file headre
+	if (!ret){
+		printf("\r\n parse bin file headre failed.");
+	}
+	while (1){
+		GPIO_SetBits(TEST24_GPIO_PORT, TEST24_PIN);// TP_RST
+		Delay_us(5);	//wait tRSTA2BRST after TP_RST
+		nvt_bootloader_reset();
+		/* Start Write Firmware Process */
+		ret = Write_Partition();// send fw to sram
+		if (!ret){
+			printf("\r\n Write_Firmware failed.");
+			goto fail;
+		}
+		/* clear fw reset status */
+		buf[0]=0xAA;
+		#ifdef FW_UPDATE_SPI_CHECK
+		while(1){
+			TCH_SPI_WordWrite(EVENT_MAP_RESET_COMPLETE,1, buf);
+			TCH_SPI_WordRead(EVENT_MAP_RESET_COMPLETE,1, buf);
+		}
+		#else
+		TCH_SPI_WordWrite(EVENT_MAP_RESET_COMPLETE,1, 0x00);
+		#endif
+		ret = Check_HW_CRC(0);	//Check overlay & Info (also name Check DMA CRC)
+		if(!ret){
+			printf("\r\n check hw crc failed, retry=%d\n", retry);
+			goto fail;
+		}
+		/* Set BLD_CRC_EN Bit to 1*/
+		nvt_bld_crc_en();
+		/* Set Boot Ready Bit */
+		nvt_boot_ready();
+		ret = Check_HW_CRC(1);	//Check ILM & DLM
+		if (!ret){
+			printf("\r\n check hw crc failed, retry=%d\n", retry);
+			goto fail;
+		}
+		ret = nvt_check_fw_reset_state(RESET_STATE_INIT);
+		if(!ret){
+			printf("\r\n nvt_check_fw_reset_state failed.\n");
+			goto fail;
+		}
+		else{
+			printf("\r\n nvt_check_fw_reset_state SUCCESS.\n");
+			break;
+		}
+		fail:
+		retry++;
 //  if(retry >3) {
   	printf("\r\n error, retry=%d\n", retry);
   	ret=ERROR;
   	break;
 //  }
 	}
-SD_FW_Close();
-TCH_SPI_UNConfig();
-#endif
-return ret;	
+	SD_FW_Close();
+	TCH_SPI_UNConfig();
+	#endif
+	return ret;	
 }
 
 /*********************************************************************************
