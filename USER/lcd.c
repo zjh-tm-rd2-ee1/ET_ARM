@@ -481,10 +481,7 @@ void LCM_Init(void)
 			//IDCheck();
 		}
  	}
-	
-	
 	/* discharge */
-//	MIPI_SleepMode_OFF();
 	LCD_LitSquence();
 	
 	FPGA_DisPattern(0, 0, 0, 0); 
