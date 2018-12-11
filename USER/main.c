@@ -117,6 +117,7 @@ int main(void)
 	printf("\r\n===== System on time elapsed: %.3f(second)\r\n", TIMESTAMP);	
   printf("\r\n*#*#SYSTEM OK#*#*\r\n");
 	
+
 	while (1)//主要循环执行程序
 	{	
 		Test_Mode_Switch();

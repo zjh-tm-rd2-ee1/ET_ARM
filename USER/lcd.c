@@ -72,6 +72,7 @@ void LCD_SoftReset(void)
 */
 void LCD_SleepIn(void)
 {	
+//	uint8_t rdBuf;
 	SendPage(0x10);
 	printf("\r\nDriver IC display off then sleep in...\r\n");
 	SSD_B7 |= SSD_CFGR_DCS;
@@ -83,7 +84,9 @@ void LCD_SleepIn(void)
 	WriteSSDReg((PORT0 | PORT1), 0xBF, 0x0028);
 	WriteSSDReg((PORT0 | PORT1), 0xBF, 0x0010);
 	Delay_ms(200);	  //delay more than 120ms
-
+//	SendPage(0x10);
+//	MIPI_DCS_Read(MAIN_PORT, 0x0A, 1, &rdBuf);
+//	printf("The register 0x0A of DDIC is: 0x%02X\r\n", rdBuf);
 	
 //	 	uint8_t D3_buf[26], D3_P1, D3_P4;
 
@@ -481,7 +484,9 @@ void LCM_Init(void)
 	
 	
 	/* discharge */
+//	MIPI_SleepMode_OFF();
 	LCD_LitSquence();
+	
 	FPGA_DisPattern(0, 0, 0, 0); 
 	Delay_ms(100);
 #ifdef CMD_MODE

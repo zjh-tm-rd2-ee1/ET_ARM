@@ -1000,12 +1000,21 @@ void SleepCurrent_Check(void)
 	
 #ifdef CURRENT_METER		
 	///////////////////////////////////////20160628///////////////////////////////
-	LCD_PWM(0x0000); 	
+	LCD_PWM(0x0000);
+
 	LCD_SleepIn();
 	LCD_VideoMode_OFF();
 	LCD_LPMode();
 	MIPI_SleepMode_ON();
 	
+	MIPI_SleepMode_OFF();
+	LCD_LitSquence();
+	
+	LCD_SleepIn();
+	LCD_VideoMode_OFF();
+	LCD_LPMode();
+	MIPI_SleepMode_ON();
+		
 	Meas_Current_Sleep();
 	if (I_IOVCC == 0.0 && I_VSP == 0.0 && I_VSN == 0.0 && I_LEDA == 0.0)
 	{
@@ -1048,6 +1057,8 @@ void SleepCurrent_Check(void)
 
 	MIPI_SleepMode_OFF();
 	LCD_LitSquence();
+	
+
 	
 	printf("\r\nCURRENT SPEC -> sleep: IOVCC = %.2f; VSP = %.2f; VSN = %.2f\r\n", SPEC_SLEEP_IOVCC, SPEC_SLEEP_VSP, SPEC_SLEEP_VSN);
 	Num_Temp = DIS_NUM;
@@ -1362,7 +1373,7 @@ void Test_Mode_Switch(void)
 			}
 			else		
 			{
-				Display_Pattern();
+				Display_Pattern();//◊‘∂Ø∑÷œ‘Õº
 			}
 		}
 #endif
