@@ -36,7 +36,7 @@
 			FPGA_DisPattern(24, 127, 127, 127);	//dotcheck
 			break;
 		case (4): //18*30 chessboard
-			FPGA_DisPattern(112, 0, 59, 63);	//FHD
+			FPGA_DisPattern(112, 0, 59, 77);	//FHD
 //			FPGA_DisPattern(112, 0, 39, 42);	//HD
 //			FPGA_DisPattern(112, 0, 79, 84);	//WQHD
 			break;

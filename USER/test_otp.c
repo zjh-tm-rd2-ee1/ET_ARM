@@ -240,7 +240,7 @@ ErrorStatus OTP(void)
 	char Str_Temp[128];
 	uint8_t auto_vcom_result;
 			
-	if (OTP_TIMES >= OTP_TIMES_MAX) //otp times check
+	if (OTP_TIMES >= OTP_TIMES_MAX) //otp times chec
 	{
 		FPGA_Info_Set((uint8_t *)"OTP TIMES NG");
 		FPGA_Info_Visible(INFO_STR);
@@ -252,6 +252,16 @@ ErrorStatus OTP(void)
 		SD_Write_OTPInfo(Str_Temp);
 		return ERROR;
 	}
+	
+			if (Info_Adjust_Gamma!=0)
+	  {
+		FPGA_Info_Set((uint8_t *)"OTP XYSWJ");
+		FPGA_Info_Visible(INFO_STR);
+		printf("\r\n*#*#OTP XYSWJ#*#*\r\n");
+		FPGA_DisPattern(114, 0, 0, 0);
+		Delay_ms(5000);
+		return ERROR;
+		}
 	
 	if ((OTP_FLAG & 0x40) == 0x40) //constrast
 	{

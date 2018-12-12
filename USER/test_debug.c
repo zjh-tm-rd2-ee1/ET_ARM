@@ -208,7 +208,9 @@ void Pattern_check(void)
 	
 	TOTAL_DIS_NUM = PIC_NUM; 
 	FPGA_DisPicture(DIS_NUM);
- 	TOTAL_DIS_NUM = 6;
+	return;
+
+ 	TOTAL_DIS_NUM = 12;
   switch (DIS_NUM) 
  	{
 		case (0): //6*8 chessboard
@@ -252,7 +254,6 @@ void Pattern_check(void)
  			FPGA_DisPattern(0, 0, 0, 0); 
  			break;
  	}
-	return;
 }
 
 void ACD_test(void)
